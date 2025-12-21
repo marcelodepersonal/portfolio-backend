@@ -1,5 +1,3225 @@
-<!doctype html><meta charset="utf-8"><title>QuantPlatform</title>
-<body style="font-family:system-ui;background:#0b1220;color:#e8eef9;padding:24px">
-<h2>QuantPlatform</h2>
-<p>Reemplazá este archivo por tu plataforma real (sin cambiar nada interno).</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Análisis de CEDEARs v30 HÍBRIDA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+        .badge-live {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 20px;
+        }
+        .modulo {
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            overflow: hidden;
+        }
+        .modulo-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 14px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+        .modulo-content {
+            padding: 12px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 3px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.8em;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 7px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+        }
+        .input-with-button input {
+            flex: 1;
+        }
+        .btn-small {
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            white-space: nowrap;
+        }
+        .btn-small:hover {
+            background: #2980b9;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .dolares-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        .dolar-card {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+        }
+        .dolar-card .nombre {
+            font-size: 0.75em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .dolar-card .valor {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+        .dolar-card .status {
+            font-size: 0.7em;
+            color: #27ae60;
+        }
+        .resultado-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
+        }
+        .info-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        .info-card h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #7f8c8d;
+            font-size: 0.8em;
+        }
+        .info-valor {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.85em;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .stats-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.85em;
+        }
+        .stats-table td:first-child {
+            color: #a0aec0;
+            font-size: 0.8em;
+        }
+        .tabla-ganancia {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .tabla-ganancia thead th {
+            background: #2c3e50;
+            padding: 6px 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.75em;
+            color: white;
+            text-transform: uppercase;
+            border: 1px solid #34495e;
+        }
+        .tabla-ganancia tbody td {
+            padding: 8px 6px;
+            text-align: center;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #2c3e50;
+            border: 1px solid #e0e0e0;
+            background: white;
+        }
+        .tabla-ganancia tbody th {
+            background: #ecf0f1;
+            padding: 5px 6px;
+            text-align: left;
+            font-size: 0.7em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            border: 1px solid #e0e0e0;
+        }
+        .positivo { color: #27ae60; font-weight: bold; }
+        .negativo { color: #e74c3c; font-weight: bold; }
+        #log {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        .log-success { color: #27ae60; }
+        .log-error { color: #e74c3c; }
+        .log-info { color: #3498db; }
+        .log-warning { color: #f39c12; }
+        .alert {
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #17a2b8;
+            font-size: 0.9em;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #3498db;
+            margin-left: 5px;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+    
+        .fila-gan-sma {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .compactoB {
+            width: 35%;
+            min-width: 320px;
+        }
+        .ladoDerecho {
+            flex: 1;
+            min-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .compactoB .modulo-content { padding: 14px; }
+        .compactoB .tabla-ganancia thead th { padding: 8px; font-size: 0.78em; }
+        .compactoB .tabla-ganancia tbody td { padding: 10px 8px; font-size: 1em; }
+        .fila-sma-perf {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .fila-sma-perf > .modulo {
+            flex: 1;
+            min-width: 280px;
+        }
+        @media (max-width: 1000px) {
+            .fila-gan-sma { flex-direction: column; }
+            .compactoB { width: 100%; }
+            .fila-sma-perf { flex-direction: column; }
+        }
+    </style>
+    <!-- ApexCharts para gráficos de candlesticks -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 PLATAFORMA DE ANÁLISIS DE CEDEARs</h1>
+        <span class="badge-live">● v30 HÍBRIDA - Yahoo Finance + Alpha Vantage</span>
+    </div>
+
+    <div class="container">
+        <div class="alert alert-success">
+            ✅ <strong>v30 HÍBRIDA:</strong> Sistema inteligente de doble fuente. Yahoo Finance como fuente primaria (ilimitado, sin API key) + Alpha Vantage como backup para comparador (25 análisis/día). Todos los módulos funcionando: Fair Value (3 métodos), Fundamentos completos, Decisión MARCE inteligente, Escenarios 12M corregidos, Comparador con análisis competitivo. <strong>Lo mejor de ambos mundos</strong> - análisis ilimitados con backup profesional.
+        </div>
+
+        <div class="modulo">
+            <div class="modulo-header">💵 COTIZACIONES DE DÓLARES</div>
+            <div class="modulo-content">
+                <div class="dolares-grid">
+                    <div class="dolar-card">
+                        <div class="nombre">Dólar Oficial</div>
+                        <div class="valor" id="dolarOFICIAL">-</div>
+                        <div class="status" id="statusOFICIAL">Cargando...</div>
+                    </div>
+                    <div class="dolar-card">
+                        <div class="nombre">Dólar CCL</div>
+                        <div class="valor" id="dolarCCL">-</div>
+                        <div class="status" id="statusCCL">Cargando...</div>
+                    </div>
+                    <div class="dolar-card">
+                        <div class="nombre">Dólar MEP</div>
+                        <div class="valor" id="dolarMEP">-</div>
+                        <div class="status" id="statusMEP">Cargando...</div>
+                    </div>
+                    <div class="dolar-card">
+                        <div class="nombre">Dólar Blue</div>
+                        <div class="valor" id="dolarBLUE">-</div>
+                        <div class="status" id="statusBLUE">Cargando...</div>
+                    </div>
+                    <div class="dolar-card">
+                        <div class="nombre">Dólar Cripto</div>
+                        <div class="valor" id="dolarCRIPTO">-</div>
+                        <div class="status" id="statusCRIPTO">Cargando...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modulo">
+            <div class="modulo-header">🔍 INGRESAR DATOS DE INVERSIÓN</div>
+            <div class="modulo-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Ticker (US)</label>
+                        <input type="text" id="f_ticker" placeholder="Ej: MSFT, AAPL, NVDA">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Compra</label>
+                        <input type="date" id="f_fecha">
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad de CEDEARs</label>
+                        <input type="text" id="f_cantidad" placeholder="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio del CEDEAR en ARS (Compra)</label>
+                        <input type="text" id="f_precio_ars" placeholder="10000.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio de la ACCIÓN en USD (Compra)</label>
+                        <input type="text" id="f_precio_usd_accion" placeholder="350.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Target Price 1 Año (USD) - Opcional</label>
+                        <div class="input-with-button">
+                            <input type="text" id="f_target_price" placeholder="400.00">
+                            <button class="btn-small" onclick="abrirFinviz()">FinViz</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 10px; font-weight: bold; text-align: center;">
+                    Mejor Punta de Caja
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>CEDEAR en $</label>
+                        <input type="text" id="f_mejor_en_pesos" placeholder="$ xxxx,xx">
+                    </div>
+                    <div class="form-group">
+                        <label>CEDEAR en USD</label>
+                        <input type="text" id="f_mejor_en_usd" placeholder="U$D x,xx">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="btnAnalizar">🔍 ANALIZAR</button>
+                    <button class="btn btn-secondary" onclick="limpiar()">🗑️ LIMPIAR</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modulo" id="moduloConveniencia" style="display:none;">
+            <div class="modulo-header">💱 CONVENIENCIA COMPRA / VENTA</div>
+            <div class="modulo-content">
+                <div class="alert alert-info">
+                    El cálculo de conveniencia se basa en la comparación entre el precio actual y las oportunidades de arbitraje entre ARS y USD.
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Conviene comprar:</span>
+                    <span class="info-valor" id="convieneComprar">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Conviene vender:</span>
+                    <span class="info-valor" id="convieneVender">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="resultado-grid" id="resultadosContainer" style="display: none;">
+            <div class="info-card">
+                <h3>📌 Información General</h3>
+                <div class="info-row">
+                    <span class="info-label">Ticker:</span>
+                    <span class="info-valor" id="displayTicker">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">CEDEARs:</span>
+                    <span class="info-valor" id="displayCedears">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ratio:</span>
+                    <span class="info-valor" id="displayRatio">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Industria:</span>
+                    <span class="info-valor" id="displayIndustria">-</span>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>📊 Datos de Inversión</h3>
+                <table class="stats-table">
+                    <tr><td>Fecha de Compra</td><td id="sFecha">-</td></tr>
+                    <tr>
+                        <td>
+                            Cotización Compra
+                            <span class="tooltip" data-tip="Dólar implícito que pagaste al comprar = Precio CEDEAR ARS / Precio CEDEAR USD">ⓘ</span>
+                        </td>
+                        <td id="sCotizCompra">-</td>
+                    </tr>
+                    <tr><td>Total de Días</td><td id="sDias">-</td></tr>
+                    <tr><td>Acción en USD (Actual)</td><td id="sAccionUSD">-</td></tr>
+                    <tr><td>CEDEAR en USD (Teórico)</td><td id="sCedearUSD">-</td></tr>
+                    <tr><td>CEDEAR en ARS (Teórico)</td><td id="sCedearARS">-</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="fila-gan-sma" id="filaGanSMA" style="display:none;">
+            
+            <div class="modulo compactoB" id="moduloGanancia" style="display: none;">
+                <div class="modulo-header">💰 GANANCIA / PÉRDIDA</div>
+                <div class="modulo-content">
+                    <table class="tabla-ganancia">
+                        <thead>
+                            <tr>
+                                <th>TOTAL DÍAS</th>
+                                <th>% USD</th>
+                                <th>% $</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="gTotalDias">-</td>
+                                <td id="gPorcentajeUSD">-</td>
+                                <td id="gPorcentajeARS">-</td>
+                            </tr>
+                            <tr><th colspan="2">VARIACIÓN DIARIA</th><th></th></tr>
+                            <tr><td colspan="2" id="gVariacionDiariaUSD">-</td><td id="gVariacionDiariaARS">-</td></tr>
+                            <tr><th colspan="2">PROYECCIÓN ANUAL</th><th></th></tr>
+                            <tr><td colspan="2" id="gProyeccionAnualUSD">-</td><td></td></tr>
+                            <tr><th colspan="2">GANANCIA ACTUAL</th><th></th></tr>
+                            <tr><td colspan="2" id="gGananciaActualUSD">-</td><td id="gGananciaActualARS">-</td></tr>
+                            <tr><th colspan="2">INVERSIÓN</th><th></th></tr>
+                            <tr><td colspan="2" id="gInversionUSD">-</td><td id="gInversionARS">-</td></tr>
+                            <tr><th colspan="2">MARKET CAPITAL (Teórico)</th><th></th></tr>
+                            <tr><td colspan="2" id="gMarketCapitalUSD">-</td><td id="gMarketCapitalARS">-</td></tr>
+                        </tbody>
+                    </table>
+
+                    <table class="tabla-ganancia">
+                        <thead>
+                            <tr><th>Precio Compra ARS</th><th>Precio Teórico ARS</th><th>DIF ARS</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td id="gCotizCompraARS">-</td><td id="gCotizActualARS">-</td><td id="gDifARS">-</td></tr>
+                            <tr><th>Precio Compra USD</th><th>Precio Actual USD</th><th>DIF USD</th></tr>
+                            <tr><td id="gCotizCompraAccionUSD">-</td><td id="gCotizActualAccionUSD">-</td><td id="gDifAccionUSD">-</td></tr>
+                            <tr><th>Cedear Compra USD</th><th>Cedear Actual USD</th><th>DIF USD</th></tr>
+                            <tr><td id="gCotizCompraCedearUSD">-</td><td id="gCotizActualCedearUSD">-</td><td id="gDifCedearUSD">-</td></tr>
+                        </tbody>
+                    </table>
+
+                    <table class="tabla-ganancia">
+                        <thead>
+                            <tr>
+                                <th>VALOR REAL<br>DEL CEDEAR</th>
+                                <th>IMPLÍCITO CCL<br>EN LA COMPRA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td id="gValorRealCedear">-</td><td id="gValorCCLAccion">-</td></tr>
+                            <tr><td id="gValorRealCedearPct">-</td><td id="gValorCCLAccionPct">-</td></tr>
+                        </tbody>
+                    </table>
+
+                    <table class="tabla-ganancia">
+                        <thead>
+                            <tr>
+                                <th>MARKET CAPITAL<br>en dólares CCL</th>
+                                <th>TARGET PRICE<br>A 1 AÑO</th>
+                                <th>POTENCIAL<br>TARGET PRICE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td id="gMarketCapCCL">-</td><td id="gTargetPrice">-</td><td id="gDiferenciaTarget">-</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="ladoDerecho">
+                <div class="fila-sma-perf" id="filaSMAPerf" style="display:none;">
+                    <div class="modulo" id="moduloSMA" style="display: none;">
+                        <div class="modulo-header">📐 INDICADORES TÉCNICOS – SMA</div>
+                        <div class="modulo-content">
+                            <table class="tabla-ganancia">
+                                <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+                                <tbody>
+                                    <tr><td>SMA 21</td><td id="sma21">-</td></tr>
+                                    <tr><td>SMA 50</td><td id="sma50">-</td></tr>
+                                    <tr><td>SMA 100</td><td id="sma100">-</td></tr>
+                                    <tr><td>SMA 200</td><td id="sma200">-</td></tr>
+                                    <tr><td>Tendencia Corto</td><td id="tendCorto">-</td></tr>
+                                    <tr><td>Tendencia Mediano</td><td id="tendMediano">-</td></tr>
+                                    <tr><td>Tendencia Largo</td><td id="tendLargo">-</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="modulo" id="moduloPerfSPY" style="display:none;">
+                        <div class="modulo-header">📊 COMPARATIVO vs SPY</div>
+                        <div class="modulo-content">
+                            <div class="form-grid" style="margin-bottom:10px; grid-template-columns: 1fr 1fr;">
+                                <div class="form-group">
+                                    <label>Desde</label>
+                                    <input type="date" id="perf_desde">
+                                </div>
+                                <div class="form-group">
+                                    <label>Hasta</label>
+                                    <input type="date" id="perf_hasta">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <button class="btn btn-primary" style="width:100%; padding:8px;" id="btnPerf" onclick="calcularPerfVsSPY()">Calcular</button>
+                            </div>
+
+                            <table class="tabla-ganancia">
+                                <thead><tr><th>Activo</th><th>SPY</th><th>DIF</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td id="perf_activo_pct">-</td>
+                                        <td id="perf_spy_pct">-</td>
+                                        <td id="perf_dif_pct">-</td>
+                                    </tr>
+                                    <tr><th colspan="3" id="perf_ganador" style="text-align:center; font-size:0.9em;">-</th></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MÓDULO: GRÁFICO DE LÍNEA -->
+        <div class="modulo" id="moduloGrafico" style="display:none;">
+            <div class="modulo-header">📈 GRÁFICO DE PRECIOS - HISTÓRICO</div>
+            <div class="modulo-content">
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label>Período de análisis</label>
+                        <select id="grafico_periodo" onchange="actualizarGrafico()">
+                            <option value="30">1 Mes (30 días)</option>
+                            <option value="60">2 Meses (60 días)</option>
+                            <option value="90" selected>3 Meses (90 días)</option>
+                            <option value="120">4 Meses (120 días)</option>
+                            <option value="150">5 Meses (150 días)</option>
+                            <option value="180">6 Meses (180 días)</option>
+                            <option value="210">7 Meses (210 días)</option>
+                            <option value="240">8 Meses (240 días)</option>
+                            <option value="270">9 Meses (270 días)</option>
+                            <option value="300">10 Meses (300 días)</option>
+                            <option value="360">1 Año (360 días)</option>
+                            <option value="1095">3 Años (1095 días)</option>
+                            <option value="1825">5 Años (1825 días)</option>
+                            <option value="3650">10 Años (3650 días)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Medias móviles (SMAs)</label>
+                        <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; gap: 5px; font-size: 13px;">
+                                <input type="checkbox" id="grafico_sma20" checked onchange="actualizarGrafico()">
+                                SMA 20
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; font-size: 13px;">
+                                <input type="checkbox" id="grafico_sma50" checked onchange="actualizarGrafico()">
+                                SMA 50
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; font-size: 13px;">
+                                <input type="checkbox" id="grafico_sma200" checked onchange="actualizarGrafico()">
+                                SMA 200
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="graficoContainer" style="width: 100%; height: 500px; background: white; border-radius: 8px; padding: 10px;">
+                    <div id="chartCandlestick"></div>
+                </div>
+                
+                <div class="alert alert-info" style="margin-top: 15px;">
+                    📊 <strong>Gráfico histórico de precios.</strong> Pasa el cursor sobre cualquier punto de la línea para ver la <strong>fecha exacta y el valor</strong> del ticker ese día. Las líneas punteadas muestran las medias móviles simples (SMA 20, 50 y 200) para identificar tendencias de corto, mediano y largo plazo.
+                </div>
+            </div>
+        </div>
+
+        <!-- MÓDULO: INDICADORES GENERALES -->
+        <div class="modulo" id="moduloIndicadoresGenerales" style="display:none;">
+            <div class="modulo-header">🧩 INDICADORES GENERALES</div>
+            <div class="modulo-content">
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                    <div class="form-group">
+                        <label>Seleccionar panel</label>
+                        <select id="ig_selector">
+                            <option value="ig_tecnicos">Indicadores Técnicos (SMA/EMA/RSI/MACD/Estoc/ATR/Volumen/Beta)</option>
+                            <option value="ig_fairvalue">Fair Value – Valor Intrínseco</option>
+                            <option value="ig_fundamental">Fundamentos – Calidad & Valuación</option>
+                            <option value="ig_decision">Decisión MARCE – Compra / Espera / Venta</option>
+                            <option value="ig_premium">Módulos Premium</option>
+                            <option value="ig_scoring">📊 Scoring Completo – Corto y Largo Plazo</option>
+                            <option value="ig_comparador">🔍 Comparador Múltiple – vs Sector</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Panel Técnicos -->
+                <div id="ig_tecnicos" class="ig_panel" style="margin-top:12px;">
+                    <div class="fila-sma-perf" style="gap:12px;">
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">📐 MEDIAS AVANZADAS</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Indicador</th><th>Valor</th><th>Estado</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>EMA 9</td><td id="ig_ema9">-</td><td id="ig_ema9_estado">-</td></tr>
+                                        <tr><td>EMA 21</td><td id="ig_ema21">-</td><td id="ig_ema21_estado">-</td></tr>
+                                        <tr><td>EMA 50</td><td id="ig_ema50">-</td><td id="ig_ema50_estado">-</td></tr>
+                                        <tr><td>EMA 150</td><td id="ig_ema150">-</td><td id="ig_ema150_estado">-</td></tr>
+                                        <tr><td>EMA 200</td><td id="ig_ema200">-</td><td id="ig_ema200_estado">-</td></tr>
+                                        <tr><td>WMA 150</td><td id="ig_wma150">-</td><td id="ig_wma150_estado">-</td></tr>
+                                        <tr><td>HMA 55</td><td id="ig_hma55">-</td><td id="ig_hma55_estado">-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">📈 MOMENTUM – RSI</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Indicador</th><th>Valor</th><th>Estado</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>RSI 14</td><td id="ig_rsi14">-</td><td id="ig_rsi_estado">-</td></tr>
+                                        <tr><th colspan="3" id="ig_rsi_senal" style="text-align:center; font-size:0.9em;">-</th></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fila-sma-perf" style="gap:12px; margin-top:12px;">
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">📉 MOMENTUM – MACD</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>MACD Line</td><td id="ig_macd_line">-</td></tr>
+                                        <tr><td>Signal Line</td><td id="ig_macd_signal">-</td></tr>
+                                        <tr><td>Histogram</td><td id="ig_macd_hist">-</td></tr>
+                                        <tr><th colspan="2" id="ig_macd_senal" style="text-align:center; font-size:0.9em;">-</th></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">🎯 MOMENTUM – ESTOCÁSTICO</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Indicador</th><th>Valor</th><th>Estado</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>%K</td><td id="ig_stoch_k">-</td><td id="ig_stoch_estado">-</td></tr>
+                                        <tr><td>%D</td><td id="ig_stoch_d">-</td><td>-</td></tr>
+                                        <tr><th colspan="3" id="ig_stoch_senal" style="text-align:center; font-size:0.9em;">-</th></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fila-sma-perf" style="gap:12px; margin-top:12px;">
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">🛡️ RIESGO – ATR & STOP</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>ATR 14 (USD)</td><td id="ig_atr14">-</td></tr>
+                                        <tr><td>Volatilidad diaria estimada</td><td id="ig_vol_diaria">-</td></tr>
+                                        <tr><td>Stop Swing</td><td id="ig_stop_swing">-</td></tr>
+                                        <tr><td>Stop Corto</td><td id="ig_stop_corto">-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">🔊 VOLUMEN</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Volumen actual</td><td id="ig_vol_actual">-</td></tr>
+                                        <tr><td>Volumen promedio 20d</td><td id="ig_vol_prom20">-</td></tr>
+                                        <tr><td>Ratio Volumen</td><td id="ig_vol_ratio">-</td></tr>
+                                        <tr><th colspan="2" id="ig_vol_senal" style="text-align:center; font-size:0.9em;">-</th></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">📊 MERCADO – BETA / SPY</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Indicador</th><th>Valor</th><th>Lectura</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Beta</td><td id="ig_beta1y">-</td><td id="ig_beta1y_estado">-</td></tr>
+                                        <tr><td>Volatilidad Anual</td><td id="ig_volatility">-</td><td>-</td></tr>
+                                        <tr><td>Market Cap</td><td id="ig_market_cap">-</td><td>-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel Fair Value -->
+                <div id="ig_fairvalue" class="ig_panel" style="display:none; margin-top:12px;">
+                    <div class="modulo" style="margin-bottom:0;">
+                        <div class="modulo-header">💎 FAIR VALUE – VALOR INTRÍNSECO</div>
+                        <div class="modulo-content">
+                            <div class="resultado-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:12px;">
+                                <div class="info-card">
+                                    <h3>Precio actual (USD)</h3>
+                                    <div class="info-row"><span class="info-valor" id="ig_fv_precio">-</span></div>
+                                </div>
+                                <div class="info-card">
+                                    <h3>Fair Value estimado (USD)</h3>
+                                    <div class="info-row"><span class="info-valor" id="ig_fv_valor">-</span></div>
+                                </div>
+                                <div class="info-card">
+                                    <h3>Upside/Downside</h3>
+                                    <div class="info-row"><span class="info-valor" id="ig_fv_mos">-</span></div>
+                                </div>
+                                <div class="info-card">
+                                    <h3>Estado</h3>
+                                    <div class="info-row"><span class="info-valor" id="ig_fv_estado">-</span></div>
+                                </div>
+                            </div>
+                            <table class="tabla-ganancia">
+                                <thead><tr><th>Método</th><th>FV USD</th><th>Upside %</th><th>Estado</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Peter Lynch FV</td><td id="ig_fv_lynch">-</td><td id="ig_fv_lynch_up">-</td><td id="ig_fv_lynch_estado">-</td></tr>
+                                    <tr><td>DCF (5Y)</td><td id="ig_fv_dcf">-</td><td id="ig_fv_dcf_up">-</td><td id="ig_fv_dcf_estado">-</td></tr>
+                                    <tr><td>Graham Number</td><td id="ig_fv_graham">-</td><td id="ig_fv_graham_up">-</td><td id="ig_fv_graham_estado">-</td></tr>
+                                    <tr><th colspan="3">FV final promedio ponderado</th><th id="ig_fv_final">-</th></tr>
+                                </tbody>
+                            </table>
+                            <div class="alert alert-info" style="margin-top:10px;">
+                                Fuente: Yahoo Finance (primaria) + Alpha Vantage (backup) – Sistema híbrido sin límites.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel Fundamental -->
+                <div id="ig_fundamental" class="ig_panel" style="display:none; margin-top:12px;">
+                    <div class="modulo" style="margin-bottom:0;">
+                        <div class="modulo-header">🏛️ FUNDAMENTOS – CALIDAD & VALUACIÓN</div>
+                        <div class="modulo-content">
+                            <div class="resultado-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+                                <div class="info-card">
+                                    <h3>Rentabilidad</h3>
+                                    <table class="stats-table">
+                                        <tr><td>ROE</td><td id="ig_f_roe">-</td></tr>
+                                        <tr><td>ROA</td><td id="ig_f_roa">-</td></tr>
+                                        <tr><td>Margen Neto</td><td id="ig_f_margen_neto">-</td></tr>
+                                        <tr><td>Margen Operativo</td><td id="ig_f_margen_op">-</td></tr>
+                                    </table>
+                                </div>
+                                <div class="info-card">
+                                    <h3>Solvencia</h3>
+                                    <table class="stats-table">
+                                        <tr><td>Debt/Equity</td><td id="ig_f_de">-</td></tr>
+                                        <tr><td>Current Ratio</td><td id="ig_f_cr">-</td></tr>
+                                        <tr><td>Quick Ratio</td><td id="ig_f_qr">-</td></tr>
+                                        <tr><td>Interest Coverage</td><td id="ig_f_ic">-</td></tr>
+                                    </table>
+                                </div>
+                                <div class="info-card">
+                                    <h3>Crecimiento</h3>
+                                    <table class="stats-table">
+                                        <tr><td>Revenue Growth</td><td id="ig_f_revg">-</td></tr>
+                                        <tr><td>EPS Growth</td><td id="ig_f_epsg">-</td></tr>
+                                        <tr><td>Free Cash Flow</td><td id="ig_f_fcf">-</td></tr>
+                                    </table>
+                                </div>
+                                <div class="info-card">
+                                    <h3>Valuación</h3>
+                                    <table class="stats-table">
+                                        <tr><td>P/E</td><td id="ig_f_pe">-</td></tr>
+                                        <tr><td>P/B</td><td id="ig_f_pb">-</td></tr>
+                                        <tr><td>P/S</td><td id="ig_f_ps">-</td></tr>
+                                        <tr><td>EV/EBITDA</td><td id="ig_f_ev">-</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="alert alert-info" style="margin-top:10px;">
+                                Fuente: Yahoo Finance (primaria) + Alpha Vantage (backup) – Ratios actualizados.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel Decisión -->
+                <div id="ig_decision" class="ig_panel" style="display:none; margin-top:12px;">
+                    <div class="modulo" style="margin-bottom:0;">
+                        <div class="modulo-header">🚦 DECISIÓN MARCE – COMPRA / ESPERA / VENTA</div>
+                        <div class="modulo-content">
+                            <div id="ig_decision_senal" style="font-size:2em; font-weight:800; text-align:center; padding:12px; border-radius:10px; margin-bottom:12px;">-</div>
+                            <h3 style="margin:8px 0;">Razones</h3>
+                            <ul id="ig_decision_razones" style="padding-left:20px; line-height:1.6;"></ul>
+                            <h3 style="margin:12px 0 8px;">Setup sugerido</h3>
+                            <table class="tabla-ganancia">
+                                <thead><tr><th>Entrada ideal</th><th>Stop Swing</th><th>Stop Corto</th><th>Objetivo 1</th><th>Objetivo 2</th></tr></thead>
+                                <tbody><tr>
+                                    <td id="ig_dec_entrada">-</td>
+                                    <td id="ig_dec_stop_swing">-</td>
+                                    <td id="ig_dec_stop_corto">-</td>
+                                    <td id="ig_dec_obj1">-</td>
+                                    <td id="ig_dec_obj2">-</td>
+                                </tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel Premium -->
+                <div id="ig_premium" class="ig_panel" style="display:none; margin-top:12px;">
+                    <div class="fila-sma-perf" style="gap:12px;">
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">🎯 PRECIO OBJETIVO – ANALISTAS</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Ítem</th><th>Valor</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Precio Objetivo</td><td id="ig_an_target">-</td></tr>
+                                        <tr><td>Upside/Downside</td><td id="ig_an_upside">-</td></tr>
+                                        <tr><td>Rating Consenso</td><td id="ig_an_rating">-</td></tr>
+                                        <tr><td>N° de Analistas</td><td id="ig_an_count">-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">📅 PRÓXIMOS EVENTOS</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Evento</th><th>Fecha</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Earnings Report</td><td id="ig_ev_earn">-</td></tr>
+                                        <tr><td>Ex-Dividend Date</td><td id="ig_ev_div">-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fila-sma-perf" style="gap:12px; margin-top:12px;">
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">🏢 INFORMACIÓN CORPORATIVA</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Dato</th><th>Valor</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Sector</td><td id="ig_corp_sector">-</td></tr>
+                                        <tr><td>Industria</td><td id="ig_corp_industry">-</td></tr>
+                                        <tr><td>CEO</td><td id="ig_corp_ceo">-</td></tr>
+                                        <tr><td>Empleados</td><td id="ig_corp_employees">-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="modulo" style="margin-bottom:0;">
+                            <div class="modulo-header">🧪 ESCENARIOS 12M</div>
+                            <div class="modulo-content">
+                                <table class="tabla-ganancia">
+                                    <thead><tr><th>Escenario</th><th>Precio (USD)</th><th>vs Actual</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Optimista (+20%)</td><td id="ig_sc_opt">-</td><td id="ig_sc_opt_pct">-</td></tr>
+                                        <tr><td>Base (FV)</td><td id="ig_sc_base">-</td><td id="ig_sc_base_pct">-</td></tr>
+                                        <tr><td>Pesimista (-20%)</td><td id="ig_sc_pes">-</td><td id="ig_sc_pes_pct">-</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Panel Scoring -->
+        <div id="ig_scoring" class="ig_panel" style="display:none; margin-top:12px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                
+                <!-- CORTO PLAZO -->
+                <div style="background: linear-gradient(135deg, #f5f1e8 0%, #faf8f3 100%); border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <div style="background: #2c3e50; color: white; padding: 12px 16px; border-radius: 8px 8px 0 0; margin: -24px -24px 20px -24px; font-size: 16px; font-weight: 700; text-align: center;">
+                        🎯 CORTO PLAZO (SWING)
+                    </div>
+                    <div style="text-align: center; color: #7f8c8d; font-size: 12px; margin-bottom: 20px;">
+                        Horizonte: 1-6 meses
+                    </div>
+                    
+                    <!-- Score Circular -->
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div id="score_cp_gauge" style="width: 140px; height: 140px; margin: 0 auto; border-radius: 50%; background: conic-gradient(#e67e22 0deg, #e67e22 var(--score-cp-deg, 0deg), #ecf0f1 var(--score-cp-deg, 0deg)); display: flex; align-items: center; justify-content: center; position: relative;">
+                            <div style="width: 110px; height: 110px; border-radius: 50%; background: #f5f1e8; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div id="score_cp_num" style="font-size: 36px; font-weight: 800; color: #e67e22;">--</div>
+                                <div style="font-size: 14px; color: #7f8c8d;">/100</div>
+                            </div>
+                        </div>
+                        <div id="score_cp_estrellas" style="font-size: 24px; margin: 12px 0;">⭐⭐⭐⭐</div>
+                        <div id="score_cp_clasificacion" style="font-size: 14px; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">MUY BUENO</div>
+                        <div id="score_cp_senal" style="background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 13px; font-weight: 600;">🟢 COMPRA</div>
+                        <div id="score_cp_posicion" style="font-size: 12px; color: #7f8c8d; margin-top: 8px;">Posición: 5-7% capital</div>
+                    </div>
+                    
+                    <!-- Desglose -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-size: 13px; font-weight: 600; color: #2c3e50; margin-bottom: 12px;">DESGLOSE:</div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span>📊 Momentum</span>
+                                <span id="score_cp_momentum_val">--/30</span>
+                            </div>
+                            <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="score_cp_momentum_bar" style="background: #16a085; height: 100%; width: 0%; transition: width 0.8s;"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span>📈 Tendencia</span>
+                                <span id="score_cp_tendencia_val">--/25</span>
+                            </div>
+                            <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="score_cp_tendencia_bar" style="background: #16a085; height: 100%; width: 0%; transition: width 0.8s;"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span>💰 Valuación</span>
+                                <span id="score_cp_valuacion_val">--/25</span>
+                            </div>
+                            <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="score_cp_valuacion_bar" style="background: #16a085; height: 100%; width: 0%; transition: width 0.8s;"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span>⚠️ Volatilidad</span>
+                                <span id="score_cp_volatilidad_val">--/20</span>
+                            </div>
+                            <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="score_cp_volatilidad_bar" style="background: #16a085; height: 100%; width: 0%; transition: width 0.8s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Factores Clave -->
+                    <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">FACTORES CLAVE:</div>
+                        <div id="score_cp_factores" style="font-size: 11px; line-height: 1.6; color: #34495e;">
+                            <div>✅ Cargando...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Setup -->
+                    <div style="background: white; border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">SETUP RECOMENDADO:</div>
+                        <div id="score_cp_setup" style="font-size: 11px; line-height: 1.6; color: #34495e;">
+                            <div>📍 Entrada: <span id="score_cp_entrada">--</span></div>
+                            <div>🛑 Stop: <span id="score_cp_stop">--</span></div>
+                            <div>🎯 Target 1: <span id="score_cp_target1">--</span></div>
+                            <div>🎯 Target 2: <span id="score_cp_target2">--</span></div>
+                            <div>⏱️ Hold: <span id="score_cp_hold">--</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- LARGO PLAZO -->
+                <div style="background: linear-gradient(135deg, #f5f1e8 0%, #faf8f3 100%); border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <div style="background: #2c3e50; color: white; padding: 12px 16px; border-radius: 8px 8px 0 0; margin: -24px -24px 20px -24px; font-size: 16px; font-weight: 700; text-align: center;">
+                        💎 LARGO PLAZO (HOLD)
+                    </div>
+                    <div style="text-align: center; color: #7f8c8d; font-size: 12px; margin-bottom: 20px;">
+                        Horizonte: 1-5 años
+                    </div>
+                    
+                    <!-- Score Circular -->
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div id="score_lp_gauge" style="width: 140px; height: 140px; margin: 0 auto; border-radius: 50%; background: conic-gradient(#e67e22 0deg, #e67e22 var(--score-lp-deg, 0deg), #ecf0f1 var(--score-lp-deg, 0deg)); display: flex; align-items: center; justify-content: center; position: relative;">
+                            <div style="width: 110px; height: 110px; border-radius: 50%; background: #f5f1e8; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div id="score_lp_num" style="font-size: 36px; font-weight: 800; color: #e67e22;">--</div>
+                                <div style="font-size: 14px; color: #7f8c8d;">/100</div>
+                            </div>
+                        </div>
+                        <div id="score_lp_estrellas" style="font-size: 24px; margin: 12px 0;">⭐⭐⭐⭐⭐</div>
+                        <div id="score_lp_clasificacion" style="font-size: 14px; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">EXCELENTE</div>
+                        <div id="score_lp_senal" style="background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 13px; font-weight: 600;">🟢 COMPRA FUERTE</div>
+                        <div id="score_lp_posicion" style="font-size: 12px; color: #7f8c8d; margin-top: 8px;">Posición: 7-10% capital</div>
+                    </div>
+                    
+                    <!-- Desglose -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-size: 13px; font-weight: 600; color: #2c3e50; margin-bottom: 12px;">DESGLOSE:</div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span>📊 Valuación</span>
+                                <span id="score_lp_valuacion_val">--/30</span>
+                            </div>
+                            <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="score_lp_valuacion_bar" style="background: #16a085; height: 100%; width: 0%; transition: width 0.8s;"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span>🏛️ Calidad</span>
+                                <span id="score_lp_calidad_val">--/30</span>
+                            </div>
+                            <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="score_lp_calidad_bar" style="background: #16a085; height: 100%; width: 0%; transition: width 0.8s;"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span>📈 Técnico LP</span>
+                                <span id="score_lp_tecnico_val">--/25</span>
+                            </div>
+                            <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="score_lp_tecnico_bar" style="background: #16a085; height: 100%; width: 0%; transition: width 0.8s;"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span>⚠️ Riesgo</span>
+                                <span id="score_lp_riesgo_val">--/15</span>
+                            </div>
+                            <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="score_lp_riesgo_bar" style="background: #16a085; height: 100%; width: 0%; transition: width 0.8s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Factores Clave -->
+                    <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">FACTORES CLAVE:</div>
+                        <div id="score_lp_factores" style="font-size: 11px; line-height: 1.6; color: #34495e;">
+                            <div>✅ Cargando...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Setup -->
+                    <div style="background: white; border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">SETUP RECOMENDADO:</div>
+                        <div id="score_lp_setup" style="font-size: 11px; line-height: 1.6; color: #34495e;">
+                            <div>📍 Entrada: <span id="score_lp_entrada">--</span></div>
+                            <div>🛑 Stop: <span id="score_lp_stop">--</span></div>
+                            <div>🎯 Target: <span id="score_lp_target">--</span></div>
+                            <div>⏱️ Hold: <span id="score_lp_hold">--</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recomendación Final -->
+            <div style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 12px; padding: 20px; margin-top: 20px;">
+                <div style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">💡 RECOMENDACIÓN FINAL</div>
+                <div id="score_recomendacion" style="font-size: 13px; line-height: 1.8;">
+                    Calculando recomendaciones...
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Comparador -->
+        <div id="ig_comparador" class="ig_panel" style="display:none; margin-top:12px;">
+            
+            <!-- Selector -->
+            <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label style="font-weight: 600; font-size: 0.9em;">Comparar contra:</label>
+                    <select id="comp_modo" style="padding: 6px; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 0.85em;">
+                        <option value="auto">Auto (Líderes del Sector)</option>
+                        <option value="manual">Manual (Elegir Tickers)</option>
+                    </select>
+                    <div id="comp_manual_input" style="display: none; flex: 1;">
+                        <input type="text" id="comp_tickers" placeholder="Ej: AAPL,GOOGL,META" style="width: 100%; padding: 6px; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 0.85em;">
+                    </div>
+                    <button onclick="actualizarComparador()" style="padding: 6px 16px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.85em;">Comparar</button>
+                </div>
+                <div id="comp_sector_info" style="margin-top: 8px; font-size: 0.8em; color: #7f8c8d;"></div>
+            </div>
+
+            <!-- Tabla Comparativa -->
+            <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 12px; overflow-x: auto;">
+                <div style="font-size: 0.95em; font-weight: 700; color: #2c3e50; margin-bottom: 10px;">📊 COMPARACIÓN DE MÉTRICAS</div>
+                <table id="comp_tabla" style="width: 100%; border-collapse: collapse; font-size: 0.8em;">
+                    <thead>
+                        <tr style="background: #2c3e50; color: white;">
+                            <th style="padding: 8px; text-align: left; border: 1px solid #34495e;">Métrica</th>
+                            <th id="comp_th_0" style="padding: 8px; text-align: center; border: 1px solid #34495e;">-</th>
+                            <th id="comp_th_1" style="padding: 8px; text-align: center; border: 1px solid #34495e;">-</th>
+                            <th id="comp_th_2" style="padding: 8px; text-align: center; border: 1px solid #34495e;">-</th>
+                            <th id="comp_th_3" style="padding: 8px; text-align: center; border: 1px solid #34495e;">-</th>
+                            <th style="padding: 8px; text-align: center; border: 1px solid #34495e; background: #34495e;">Prom. Sector</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comp_tbody">
+                        <tr><td colspan="6" style="padding: 20px; text-align: center; color: #7f8c8d;">Cargando comparación...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Ranking y Análisis -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                
+                <!-- Ranking -->
+                <div style="background: linear-gradient(135deg, #f5f1e8 0%, #faf8f3 100%); border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.95em; font-weight: 700; color: #2c3e50; margin-bottom: 10px;">🏆 RANKING POR CATEGORÍA</div>
+                    <div id="comp_ranking" style="font-size: 0.8em; line-height: 1.8;">
+                        Calculando rankings...
+                    </div>
+                </div>
+
+                <!-- Análisis -->
+                <div style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.95em; font-weight: 700; margin-bottom: 10px;">💡 ANÁLISIS COMPARATIVO</div>
+                    <div id="comp_analisis" style="font-size: 0.8em; line-height: 1.8;">
+                        Generando análisis...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posición del Ticker -->
+            <div style="background: white; border-radius: 8px; padding: 14px; margin-top: 12px;">
+                <div style="font-size: 0.95em; font-weight: 700; color: #2c3e50; margin-bottom: 10px;">📍 POSICIÓN DE <span id="comp_ticker_name">TU TICKER</span> EN EL SECTOR</div>
+                <div id="comp_posicion" style="font-size: 0.8em; line-height: 1.8;">
+                    Analizando posición...
+                </div>
+            </div>
+
+        </div>
+
+            </div>
+        </div>
+
+        <div class="modulo">
+            <div class="modulo-header">📝 LOG DE ACTIVIDAD</div>
+            <div class="modulo-content">
+                <div id="log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// API Key para Alpha Vantage
+const ALPHA_VANTAGE_KEY = 'XYA4EPU46J3ZV2PZ'; // 500 llamadas/día
+
+const DB_CEDEARS = {"SPY":{ratio:20},"AAPL":{ratio:20},"MSFT":{ratio:30},"KO":{ratio:5},"MELI":{ratio:120},"TSLA":{ratio:15},"NVDA":{ratio:24},"GOOGL":{ratio:58},"AMZN":{ratio:144},"DIS":{ratio:12},"BABA":{ratio:9},"META":{ratio:24},"AMD":{ratio:10},"QCOM":{ratio:11},"XOM":{ratio:10},"JPM":{ratio:15},"V":{ratio:18},"WMT":{ratio:18},"PFE":{ratio:4},"PG":{ratio:15},"JNJ":{ratio:15},"PEP":{ratio:18},"MCD":{ratio:24},"MMM":{ratio:10},"INTC":{ratio:5},"IBM":{ratio:15},"BA":{ratio:24},"CAT":{ratio:20},"GE":{ratio:8},"CVX":{ratio:16},"CSCO":{ratio:5},"NKE":{ratio:12},"VZ":{ratio:4},"T":{ratio:3},"UNH":{ratio:33},"HD":{ratio:32},"GS":{ratio:13},"AXP":{ratio:15},"WFC":{ratio:5},"C":{ratio:3},"BAC":{ratio:4},"BRK.B":{ratio:22},"PYPL":{ratio:8},"NFLX":{ratio:48},"ADBE":{ratio:44},"CRM":{ratio:18},"NIO":{ratio:4},"BIDU":{ratio:11},"JD":{ratio:4},"VALE":{ratio:2},"PBR":{ratio:1},"ITUB":{ratio:1},"BBD":{ratio:1},"ERJ":{ratio:1},"ABEV":{ratio:0.33},"NU":{ratio:2},"GOLD":{ratio:2},"AUY":{ratio:1},"YPF":{ratio:1},"GGAL":{ratio:1},"BMA":{ratio:1}};
+
+const DOLARES = {oficial: 0, ccl: 0, mep: 0, blue: 0, cripto: 0};
+let ACTIVE_TICKER = null;
+let ACTIVE_SERIE = null;
+let ACTIVE_TIMESTAMPS = null;
+let ALPHA_DATA = null;
+
+function log(msg, tipo = 'info') {
+    const logDiv = document.getElementById('log');
+    const timestamp = new Date().toLocaleTimeString('es-AR');
+    const clase = tipo === 'error' ? 'log-error' : tipo === 'success' ? 'log-success' : tipo === 'warning' ? 'log-warning' : 'log-info';
+    logDiv.innerHTML += `<div class="log-entry ${clase}">[${timestamp}] ${msg}</div>`;
+    logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+function fmt(n, d = 2) {
+    return !n && n !== 0 ? '-' : n.toLocaleString('es-AR', {
+        minimumFractionDigits: d,
+        maximumFractionDigits: d
+    });
+}
+
+function fmtUSD(n, d = 2) { return !n && n !== 0 ? '-' : `US$ ${fmt(n, d)}`; }
+function fmtARS(n, d = 2) { return !n && n !== 0 ? '-' : `$ ${fmt(n, d)}`; }
+function fmtPct(n, d = 2) { return !n && n !== 0 ? '-' : `${n >= 0 ? '+' : ''}${fmt(n, d)}%`; }
+function fmtDate(d) {
+    if (!d) return '-';
+    const [year, month, day] = d.split('-');
+    return `${day}/${month}/${year}`;
+}
+
+function parseNum(v){
+    if(v===null || v===undefined) return 0;
+    if(typeof v === 'number') return v;
+    let s = String(v).trim();
+    if(!s) return 0;
+    s = s.replace(/[^0-9,.-]/g,'');
+    if(s.includes(',') && s.includes('.')){
+        s = s.replace(/\./g,'').replace(',','.');
+    } else if(s.includes(',') && !s.includes('.')){
+        s = s.replace(',','.');
+    }
+    const n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+}
+
+// Helper para parsear valores de Alpha Vantage
+function parseAV(v) {
+    if (v === 'None' || v === null || v === undefined || v === '') return null;
+    const num = parseFloat(v);
+    return isNaN(num) ? null : num;
+}
+
+function calcDias(d) { return Math.floor((new Date() - new Date(d)) / 86400000); }
+function calcRent(i, f) { return !i || !f ? 0 : ((f - i) / i) * 100; }
+function calcSMA(series, period) {
+    if (!series || series.length < period) return null;
+    const slice = series.slice(-period);
+    const sum = slice.reduce((a, v) => a + v, 0);
+    return sum / slice.length;
+}
+
+function initIndicadoresGeneralesUI(){
+    const sel=document.getElementById('ig_selector');
+    if(!sel) return;
+    sel.addEventListener('change', ()=>{
+        document.querySelectorAll('.ig_panel').forEach(p=>p.style.display='none');
+        const id=sel.value;
+        const panel=document.getElementById(id);
+        if(panel) panel.style.display='block';
+    });
+}
+
+function abrirFinviz() {
+    const ticker = document.getElementById('f_ticker').value.trim().toUpperCase();
+    if (!ticker) { alert('⚠️ Ingresa un ticker primero'); return; }
+    window.open(`https://finviz.com/quote.ashx?t=${ticker}`, '_blank');
+}
+
+async function cargarDolares() {
+    try {
+        log('📡 Actualizando dólares...');
+        const r = await fetch('https://dolarapi.com/v1/dolares');
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const d = await r.json();
+        DOLARES.oficial = d.find(x => x.casa === 'oficial')?.venta || 1050;
+        DOLARES.ccl = d.find(x => x.casa === 'contadoconliqui')?.venta || 1477;
+        DOLARES.mep = d.find(x => x.casa === 'bolsa')?.venta || 1465;
+        DOLARES.blue = d.find(x => x.casa === 'blue')?.venta || 1450;
+        DOLARES.cripto = d.find(x => x.casa === 'cripto')?.venta || 1480;
+        
+        document.getElementById('dolarOFICIAL').textContent = fmtARS(DOLARES.oficial);
+        document.getElementById('statusOFICIAL').textContent = '✓ Live';
+        document.getElementById('dolarCCL').textContent = fmtARS(DOLARES.ccl);
+        document.getElementById('statusCCL').textContent = '✓ Live';
+        document.getElementById('dolarMEP').textContent = fmtARS(DOLARES.mep);
+        document.getElementById('statusMEP').textContent = '✓ Live';
+        document.getElementById('dolarBLUE').textContent = fmtARS(DOLARES.blue);
+        document.getElementById('statusBLUE').textContent = '✓ Live';
+        document.getElementById('dolarCRIPTO').textContent = fmtARS(DOLARES.cripto);
+        document.getElementById('statusCRIPTO').textContent = '✓ Live';
+        
+        log(`✅ Dólares actualizados - CCL: ${fmtARS(DOLARES.ccl)}`, 'success');
+    } catch (e) {
+        log('❌ Error al cargar dólares: ' + e.message, 'error');
+    }
+}
+
+async function obtenerStock(ticker) {
+    log(`📡 Obteniendo datos históricos de ${ticker}...`);
+    const proxies = [
+        'https://corsproxy.io/?',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://api.allorigins.win/raw?url='
+    ];
+    
+    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=5y&interval=1d`;
+
+    for (let i = 0; i < proxies.length; i++) {
+        try {
+            const url = proxies[i] + encodeURIComponent(yahooUrl);
+            const r = await fetch(url);
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            const data = await r.json();
+
+            if (data.chart && data.chart.result && data.chart.result[0]) {
+                const result = data.chart.result[0];
+                const quote = result.meta;
+                const precio = quote.regularMarketPrice;
+                const serie = result.indicators.adjclose[0].adjclose.filter(v => v != null);
+                
+                log(`✅ Datos históricos obtenidos (${serie.length} días) con Proxy ${i+1}`, 'success');
+
+                return {
+                    precio: precio,
+                    variacion: ((precio - quote.previousClose) / quote.previousClose) * 100,
+                    serie: serie,
+                    timestamps: result.timestamp || []
+                };
+            }
+        } catch (e) {
+            // Silent fail, try next proxy
+        }
+    }
+    throw new Error('No se pudieron obtener datos históricos.');
+}
+
+// =============== FMP API FUNCTIONS ===============
+
+// =============== ALPHA VANTAGE API FUNCTIONS ===============
+
+// =============== YAHOO FINANCE - FUENTE PRIMARIA (ILIMITADO) ===============
+
+async function obtenerDatosYahooFinance(ticker) {
+    log(`📡 Obteniendo datos de Yahoo Finance para ${ticker}...`);
+    
+    try {
+        const yahooUrl = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=summaryDetail,financialData,defaultKeyStatistics,assetProfile,balanceSheetHistory,cashflowStatementHistory,incomeStatementHistory`;
+        
+        log(`  📊 Consultando Yahoo Finance...`, 'info');
+        const yahooRes = await fetch(yahooUrl);
+        const yahooData = await yahooRes.json();
+        
+        if (!yahooData || !yahooData.quoteSummary || !yahooData.quoteSummary.result) {
+            log(`❌ Error Yahoo Finance: Datos no disponibles`, 'error');
+            return null;
+        }
+        
+        const result = yahooData.quoteSummary.result[0];
+        const summary = result.summaryDetail || {};
+        const financial = result.financialData || {};
+        const keyStats = result.defaultKeyStatistics || {};
+        const profile = result.assetProfile || {};
+        const balanceSheet = result.balanceSheetHistory?.balanceSheetStatements?.[0] || {};
+        const cashFlow = result.cashflowStatementHistory?.cashflowStatements?.[0] || {};
+        const income = result.incomeStatementHistory?.incomeStatementHistory?.[0] || {};
+        
+        log(`  ✅ Datos obtenidos de Yahoo Finance exitosamente`, 'success');
+        
+        const getVal = (obj) => obj?.raw !== undefined ? obj.raw : obj;
+        
+        // Mapear a formato compatible con Alpha Vantage
+        const overview = {
+            Symbol: ticker,
+            Name: profile.longName || ticker,
+            Sector: profile.sector || 'N/A',
+            Industry: profile.industry || 'N/A',
+            MarketCapitalization: getVal(summary.marketCap),
+            PERatio: getVal(summary.trailingPE) || getVal(summary.forwardPE),
+            PriceToBookRatio: getVal(keyStats.priceToBook),
+            PriceToSalesRatioTTM: getVal(keyStats.priceToSalesTrailing12Months),
+            DividendYield: getVal(summary.dividendYield) || 0,
+            EPS: getVal(keyStats.trailingEps) || getVal(keyStats.forwardEps),
+            Beta: getVal(keyStats.beta),
+            '52WeekHigh': getVal(summary.fiftyTwoWeekHigh),
+            '52WeekLow': getVal(summary.fiftyTwoWeekLow),
+            '50DayMovingAverage': getVal(summary.fiftyDayAverage),
+            '200DayMovingAverage': getVal(summary.twoHundredDayAverage),
+            SharesOutstanding: getVal(keyStats.sharesOutstanding),
+            BookValue: getVal(keyStats.bookValue),
+            ProfitMargin: getVal(financial.profitMargins),
+            OperatingMarginTTM: getVal(financial.operatingMargins),
+            ReturnOnAssetsTTM: getVal(financial.returnOnAssets),
+            ReturnOnEquityTTM: getVal(financial.returnOnEquity),
+            RevenueTTM: getVal(financial.totalRevenue),
+            GrossProfitTTM: getVal(financial.grossProfits),
+            QuarterlyRevenueGrowthYOY: getVal(financial.revenueGrowth) || 0.10,
+            QuarterlyEarningsGrowthYOY: getVal(financial.earningsGrowth) || 0.10,
+            EVToEBITDA: getVal(keyStats.enterpriseToEbitda),
+            PreviousClose: getVal(summary.previousClose) || getVal(summary.regularMarketPreviousClose),
+            LatestPrice: getVal(summary.previousClose) || getVal(summary.regularMarketPreviousClose),
+            FullTimeEmployees: profile.fullTimeEmployees || 'N/A'
+        };
+        
+        const mappedBalance = {
+            totalAssets: getVal(balanceSheet.totalAssets),
+            totalLiabilities: getVal(balanceSheet.totalLiab),
+            totalShareholderEquity: getVal(balanceSheet.totalStockholderEquity),
+            totalCurrentAssets: getVal(balanceSheet.totalCurrentAssets),
+            totalCurrentLiabilities: getVal(balanceSheet.totalCurrentLiabilities),
+            cashAndCashEquivalentsAtCarryingValue: getVal(balanceSheet.cash),
+            inventory: getVal(balanceSheet.inventory)
+        };
+        
+        const mappedCashFlow = {
+            operatingCashflow: getVal(cashFlow.totalCashFromOperatingActivities),
+            capitalExpenditures: Math.abs(getVal(cashFlow.capitalExpenditures) || 0)
+        };
+        
+        const mappedIncome = {
+            revenue: getVal(income.totalRevenue),
+            netIncome: getVal(income.netIncome),
+            grossProfit: getVal(income.grossProfit),
+            operatingIncome: getVal(income.operatingIncome),
+            ebitda: getVal(income.ebitda),
+            eps: getVal(keyStats.trailingEps)
+        };
+        
+        const data = {
+            overview: overview,
+            income: mappedIncome,
+            balance: mappedBalance,
+            cashFlow: mappedCashFlow,
+            source: 'Yahoo Finance'
+        };
+        
+        log(`  📊 Price: $${getVal(summary.previousClose)}`, 'info');
+        log(`  🏢 Sector: ${profile.sector || 'N/A'}`, 'info');
+        log(`  📈 P/E: ${getVal(summary.trailingPE)?.toFixed(2) || 'N/A'}, EPS: ${getVal(keyStats.trailingEps)?.toFixed(2) || 'N/A'}`, 'info');
+        
+        return data;
+        
+    } catch (e) {
+        log(`❌ Error obteniendo datos de Yahoo Finance: ${e.message}`, 'error');
+        return null;
+    }
+}
+
+// =============== ALPHA VANTAGE - BACKUP Y COMPARADOR ===============
+
+async function obtenerDatosAlphaVantage(ticker) {
+    log(`📡 Obteniendo datos fundamentales de Alpha Vantage para ${ticker}...`);
+    
+    try {
+        // Company Overview - Información general, ratios, y datos fundamentales
+        const overviewUrl = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${ALPHA_VANTAGE_KEY}`;
+        log(`  📊 Obteniendo Company Overview...`, 'info');
+        const overviewRes = await fetch(overviewUrl);
+        const overview = await overviewRes.json();
+        
+        // Verificar si hay error o datos vacíos
+        if (overview['Error Message'] || overview['Note'] || !overview.Symbol) {
+            log(`❌ Error Alpha Vantage: ${overview['Error Message'] || overview['Note'] || 'Datos no disponibles'}`, 'error');
+            return null;
+        }
+        
+        log(`  ✅ Company Overview obtenido exitosamente`, 'success');
+        
+        // Income Statement (últimos datos anuales)
+        const incomeUrl = `https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=${ticker}&apikey=${ALPHA_VANTAGE_KEY}`;
+        log(`  📈 Obteniendo Income Statement...`, 'info');
+        const incomeRes = await fetch(incomeUrl);
+        const income = await incomeRes.json();
+        
+        // Balance Sheet (últimos datos anuales)
+        const balanceUrl = `https://www.alphavantage.co/query?function=BALANCE_SHEET&symbol=${ticker}&apikey=${ALPHA_VANTAGE_KEY}`;
+        log(`  📊 Obteniendo Balance Sheet...`, 'info');
+        const balanceRes = await fetch(balanceUrl);
+        const balance = await balanceRes.json();
+        
+        // Cash Flow (últimos datos anuales)
+        const cashFlowUrl = `https://www.alphavantage.co/query?function=CASH_FLOW&symbol=${ticker}&apikey=${ALPHA_VANTAGE_KEY}`;
+        log(`  💰 Obteniendo Cash Flow...`, 'info');
+        const cashFlowRes = await fetch(cashFlowUrl);
+        const cashFlow = await cashFlowRes.json();
+        
+        log(`✅ Datos fundamentales obtenidos de Alpha Vantage exitosamente`, 'success');
+        
+        // Extraer datos más recientes de cada reporte
+        const latestIncome = income.annualReports?.[0] || {};
+        const latestBalance = balance.annualReports?.[0] || {};
+        const latestCashFlow = cashFlow.annualReports?.[0] || {};
+        
+        // Estructurar datos de forma consistente
+        const data = {
+            overview: overview,
+            income: latestIncome,
+            balance: latestBalance,
+            cashFlow: latestCashFlow,
+            source: 'Alpha Vantage'
+        };
+        
+        // Log de campos importantes
+        const parseAV = v => v !== 'None' && v !== null && v !== undefined ? parseFloat(v) : null;
+        log(`  📊 Price: ${overview.PreviousClose || overview['50DayMovingAverage']}`, 'info');
+        log(`  🏢 Sector: ${overview.Sector}, Industry: ${overview.Industry}`, 'info');
+        log(`  📈 P/E: ${overview.PERatio}, EPS: ${overview.EPS}, ROE: ${overview.ReturnOnEquityTTM}`, 'info');
+        log(`  💰 Market Cap: ${overview.MarketCapitalization}`, 'info');
+        
+        return data;
+        
+    } catch (e) {
+        log(`❌ Error obteniendo datos de Alpha Vantage: ${e.message}`, 'error');
+        return null;
+    }
+}
+
+// =============== INDICADORES TÉCNICOS ===============
+
+function calcEMA(series, period){
+    if(!series || series.length < period) return null;
+    const k = 2/(period+1);
+    let ema = series[0];
+    for(let i=1;i<series.length;i++){
+        ema = series[i]*k + ema*(1-k);
+    }
+    return ema;
+}
+
+function calcWMA(series, period){
+    if(!series || series.length < period) return null;
+    const slice = series.slice(-period);
+    let num=0, den=0;
+    for(let i=0;i<slice.length;i++){
+        const w=i+1;
+        num += slice[i]*w; den += w;
+    }
+    return num/den;
+}
+
+function calcHMA(series, period){
+    if(!series || series.length < period) return null;
+    const half = Math.floor(period/2);
+    const sqrtP = Math.floor(Math.sqrt(period));
+    const wmaHalf = [];
+    const wmaFull = [];
+    for(let i=half;i<=series.length;i++){
+        wmaHalf.push(calcWMA(series.slice(0,i), half));
+    }
+    for(let i=period;i<=series.length;i++){
+        wmaFull.push(calcWMA(series.slice(0,i), period));
+    }
+    const diff = wmaHalf.slice(-wmaFull.length).map((v,idx)=>2*v - wmaFull[idx]);
+    return calcWMA(diff, sqrtP);
+}
+
+function calcRSI(series, period=14){
+    if(!series || series.length < period+1) return null;
+    let gains=0, losses=0;
+    for(let i=series.length-period; i<series.length; i++){
+        const delta = series[i]-series[i-1];
+        if(delta>=0) gains+=delta; else losses-=delta;
+    }
+    const avgGain = gains/period;
+    const avgLoss = losses/period;
+    if(avgLoss===0) return 100;
+    const rs = avgGain/avgLoss;
+    return 100 - (100/(1+rs));
+}
+
+function calcMACD(series, fast=12, slow=26, signal=9){
+    if(!series || series.length < slow+signal) return null;
+    const emaFastSeries=[], emaSlowSeries=[];
+    let emaFast=series[0], emaSlow=series[0];
+    const kFast=2/(fast+1), kSlow=2/(slow+1);
+    for(let i=0;i<series.length;i++){
+        emaFast = series[i]*kFast + emaFast*(1-kFast);
+        emaSlow = series[i]*kSlow + emaSlow*(1-kSlow);
+        emaFastSeries.push(emaFast); emaSlowSeries.push(emaSlow);
+    }
+    const macdLine = emaFastSeries.map((v,i)=>v-emaSlowSeries[i]);
+    let sig = macdLine[0];
+    const kSig=2/(signal+1);
+    for(let i=0;i<macdLine.length;i++){
+        sig = macdLine[i]*kSig + sig*(1-kSig);
+    }
+    const hist = macdLine[macdLine.length-1] - sig;
+    return {macd: macdLine[macdLine.length-1], signal: sig, hist};
+}
+
+function calcStoch(series, period=14, smoothK=3, smoothD=3){
+    if(!series || series.length < period+smoothK+smoothD) return null;
+    const slice = series.slice(-period);
+    const low = Math.min(...slice);
+    const high = Math.max(...slice);
+    const last = slice[slice.length-1];
+    let k = (high===low)?50: ((last-low)/(high-low))*100;
+    const kSeries=[];
+    for(let i=series.length-period; i<series.length; i++){
+        const part = series.slice(i-period+1, i+1);
+        const lo = Math.min(...part), hi=Math.max(...part), la=part[part.length-1];
+        kSeries.push((hi===lo)?50:((la-lo)/(hi-lo))*100);
+    }
+    const kSm = calcSMA(kSeries, smoothK) ?? k;
+    const dSm = calcSMA(kSeries.slice(-smoothK), smoothD) ?? kSm;
+    return {k:kSm, d:dSm};
+}
+
+function estadoAlcBaj(precio, media){
+    if(media===null) return 'N/A';
+    return precio>media ? '🐂 ALCISTA' : '🐻 BAJISTA';
+}
+
+// =============== ACTUALIZAR INDICADORES GENERALES ===============
+
+async function actualizarIndicadoresGenerales(precioActual, serie, alphaData){
+    if(!precioActual || !serie) return;
+
+    log('🧩 Actualizando Indicadores Generales...');
+
+    // Medias avanzadas
+    const ema9=calcEMA(serie,9), ema21=calcEMA(serie,21), ema50=calcEMA(serie,50), ema150=calcEMA(serie,150), ema200=calcEMA(serie,200);
+    const wma150=calcWMA(serie,150), hma55=calcHMA(serie,55);
+
+    const setMedia = (idVal,idEst,val)=>{
+        document.getElementById(idVal).textContent = val!==null?fmtUSD(val):`N/A`;
+        document.getElementById(idEst).textContent = estadoAlcBaj(precioActual, val);
+    };
+    setMedia('ig_ema9','ig_ema9_estado',ema9);
+    setMedia('ig_ema21','ig_ema21_estado',ema21);
+    setMedia('ig_ema50','ig_ema50_estado',ema50);
+    setMedia('ig_ema150','ig_ema150_estado',ema150);
+    setMedia('ig_ema200','ig_ema200_estado',ema200);
+    setMedia('ig_wma150','ig_wma150_estado',wma150);
+    setMedia('ig_hma55','ig_hma55_estado',hma55);
+
+    // RSI
+    const rsi14=calcRSI(serie,14);
+    document.getElementById('ig_rsi14').textContent = rsi14!==null?fmt(rsi14,2):'N/A';
+    let rsiEstado='N/A', rsiSenal='-';
+    if(rsi14!==null){
+        if(rsi14>70){ rsiEstado='🟥 Sobrecomprado'; rsiSenal='📉 Posible toma de ganancia'; }
+        else if(rsi14<30){ rsiEstado='🟩 Sobrevendido'; rsiSenal='📈 Posible entrada'; }
+        else { rsiEstado='🟨 Neutral'; rsiSenal='⏸️ Sin señal fuerte'; }
+    }
+    document.getElementById('ig_rsi_estado').textContent = rsiEstado;
+    document.getElementById('ig_rsi_senal').textContent = rsiSenal;
+
+    // MACD
+    const macd=calcMACD(serie);
+    if(macd){
+        document.getElementById('ig_macd_line').textContent = fmt(macd.macd,3);
+        document.getElementById('ig_macd_signal').textContent = fmt(macd.signal,3);
+        document.getElementById('ig_macd_hist').textContent = fmt(macd.hist,3);
+        document.getElementById('ig_macd_senal').textContent = macd.hist>=0?'🟩 Impulso alcista':'🟥 Impulso bajista';
+    }
+
+    // Estocástico
+    const st=calcStoch(serie);
+    if(st){
+        document.getElementById('ig_stoch_k').textContent = fmt(st.k,2);
+        document.getElementById('ig_stoch_d').textContent = fmt(st.d,2);
+        let stEstado='🟨 Neutral', stSenal='-';
+        if(st.k>80){ stEstado='🟥 Sobrecomprado'; stSenal='📉 Posible giro bajista'; }
+        else if(st.k<20){ stEstado='🟩 Sobrevendido'; stSenal='📈 Posible giro alcista'; }
+        document.getElementById('ig_stoch_estado').textContent = stEstado;
+        document.getElementById('ig_stoch_senal').textContent = stSenal + ' / Cruce K-D = señal';
+    }
+
+    // ATR / stops
+    const atr14 = calcSMA(serie.slice(1).map((v,i)=>Math.abs(v-serie[i])),14);
+    document.getElementById('ig_atr14').textContent = atr14!==null?fmtUSD(atr14):'N/A';
+    const volDiaria = atr14 && precioActual ? (atr14/precioActual)*100 : null;
+    document.getElementById('ig_vol_diaria').textContent = volDiaria!==null?fmtPct(volDiaria):'N/A';
+    document.getElementById('ig_stop_swing').textContent = atr14?fmtUSD(precioActual-2*atr14):'N/A';
+    document.getElementById('ig_stop_corto').textContent = atr14?fmtUSD(precioActual-1*atr14):'N/A';
+
+    // Volumen
+    const volActual = parseAV(alphaData?.overview?.Volume) || null;
+    const volAvg = null; // Alpha Vantage no provee volumen promedio directamente
+    document.getElementById('ig_vol_actual').textContent = volActual ? fmt(volActual, 0) : 'N/A';
+    document.getElementById('ig_vol_prom20').textContent = 'N/A';
+    document.getElementById('ig_vol_ratio').textContent = 'N/A';
+    document.getElementById('ig_vol_senal').textContent = '-';
+
+    // Beta y Market Cap
+    const beta = parseAV(alphaData?.overview?.Beta);
+    const marketCap = parseAV(alphaData?.overview?.MarketCapitalization);
+    const sma50 = parseAV(alphaData?.overview?.['50DayMovingAverage']);
+    const volAnual = sma50 ? ((precioActual - sma50) / sma50 * 100) : null;
+    
+    document.getElementById('ig_beta1y').textContent = beta!==null?fmt(beta,2):'N/A';
+    document.getElementById('ig_beta1y_estado').textContent = beta!==null?(beta>1?'Más volátil que SPY':'Defensiva'):'-';
+    document.getElementById('ig_volatility').textContent = volAnual!==null?fmtPct(volAnual):'N/A';
+    document.getElementById('ig_market_cap').textContent = marketCap ? '$' + (marketCap/1e9).toFixed(2) + 'B' : 'N/A';
+
+    // Si no hay Alpha data, salir
+    if(!alphaData || !alphaData.overview){
+        log('⚠️ Sin datos de Alpha Vantage - Módulos fundamentales limitados', 'warning');
+        return;
+    }
+
+    log('✅ Procesando datos fundamentales de Alpha Vantage...');
+
+    // =============== FUNDAMENTOS ===============
+    const ov = alphaData.overview;
+    
+    const pctOrNA = v=>{
+        const num = parseAV(v);
+        return num!==null?fmtPct(num*100):'N/A';
+    };
+    const numOrNA = v=>{
+        const num = parseAV(v);
+        return num!==null?fmt(num,2):'N/A';
+    };
+    
+    document.getElementById('ig_f_roe').textContent = pctOrNA(ov.ReturnOnEquityTTM);
+    document.getElementById('ig_f_roa').textContent = pctOrNA(ov.ReturnOnAssetsTTM);
+    document.getElementById('ig_f_margen_neto').textContent = pctOrNA(ov.ProfitMargin);
+    document.getElementById('ig_f_margen_op').textContent = pctOrNA(ov.OperatingMarginTTM);
+    
+    // Calcular ratios de solvencia desde balance sheet
+    const totalAssets = parseAV(alphaData.balance.totalAssets);
+    const totalLiabilities = parseAV(alphaData.balance.totalLiabilities);
+    const totalEquity = parseAV(alphaData.balance.totalShareholderEquity);
+    const currentAssets = parseAV(alphaData.balance.totalCurrentAssets);
+    const currentLiabilities = parseAV(alphaData.balance.totalCurrentLiabilities);
+    const cash = parseAV(alphaData.balance.cashAndCashEquivalentsAtCarryingValue);
+    const inventory = parseAV(alphaData.balance.inventory);
+    
+    const debtEquity = (totalLiabilities && totalEquity) ? totalLiabilities / totalEquity : null;
+    const currentRatio = (currentAssets && currentLiabilities) ? currentAssets / currentLiabilities : null;
+    const quickRatio = (cash && currentLiabilities && inventory) ? (currentAssets - inventory) / currentLiabilities : null;
+    
+    document.getElementById('ig_f_de').textContent = numOrNA(debtEquity);
+    document.getElementById('ig_f_cr').textContent = numOrNA(currentRatio);
+    document.getElementById('ig_f_qr').textContent = numOrNA(quickRatio);
+    document.getElementById('ig_f_ic').textContent = 'N/A'; // Requiere cálculo complejo
+    
+    document.getElementById('ig_f_revg').textContent = pctOrNA(ov.QuarterlyRevenueGrowthYOY);
+    document.getElementById('ig_f_epsg').textContent = pctOrNA(ov.QuarterlyEarningsGrowthYOY);
+    
+    const fcf = parseAV(alphaData.cashFlow.operatingCashflow) - parseAV(alphaData.cashFlow.capitalExpenditures);
+    const shares = parseAV(ov.SharesOutstanding);
+    const fcfPerShare = (fcf && shares) ? fcf / shares : null;
+    document.getElementById('ig_f_fcf').textContent = fcfPerShare ? '$' + fmt(fcfPerShare, 2) : 'N/A';
+    
+    document.getElementById('ig_f_pe').textContent = numOrNA(ov.PERatio);
+    document.getElementById('ig_f_pb').textContent = numOrNA(ov.PriceToBookRatio);
+    document.getElementById('ig_f_ps').textContent = numOrNA(ov.PriceToSalesRatioTTM);
+    document.getElementById('ig_f_ev').textContent = numOrNA(ov.EVToEBITDA);
+
+    // =============== FAIR VALUE ===============
+    const eps = parseAV(ov.EPS) || 0;
+    const pe = parseAV(ov.PERatio) || 15;
+    const growth = parseAV(ov.QuarterlyRevenueGrowthYOY) || parseAV(ov.QuarterlyEarningsGrowthYOY) || 0.10;
+    const bookValue = parseAV(ov.BookValue) || 0;
+    
+    // Peter Lynch: PEG-based
+    const fvLynch = (eps && growth) ? eps * Math.min(pe, 20) * (1 + growth) : null;
+    
+    // DCF simplificado: EPS * (1 + growth)^5 / (discount_rate - growth)
+    // Usando discount rate de 10% y proyección 5 años
+    const discountRate = 0.10;
+    const fvDcf = (eps && growth && growth < discountRate) ? 
+        eps * Math.pow(1 + growth, 5) / (discountRate - growth) : null;
+    
+    // Graham Number: sqrt(22.5 * EPS * Book Value)
+    const fvGraham = (eps > 0 && bookValue > 0) ? Math.sqrt(22.5 * eps * bookValue) : null;
+    
+    // Promedio ponderado
+    const fvFinal = (fvLynch || fvDcf || fvGraham) ? 
+        ((fvLynch||0)*0.35 + (fvDcf||0)*0.40 + (fvGraham||0)*0.25) / 
+        ((fvLynch?0.35:0)+(fvDcf?0.40:0)+(fvGraham?0.25:0)) : null;
+    
+    const upside = fvFinal ? ((fvFinal-precioActual)/precioActual)*100 : null;
+    
+    document.getElementById('ig_fv_precio').textContent = fmtUSD(precioActual);
+    document.getElementById('ig_fv_valor').textContent = fvFinal?fmtUSD(fvFinal):'N/A';
+    document.getElementById('ig_fv_mos').textContent = upside!==null?fmtPct(upside):'N/A';
+    document.getElementById('ig_fv_estado').textContent = upside!==null?
+        (upside>15?'🟩 Subvaluada':upside<-15?'🟥 Sobrevaluada':'🟨 Fair'):'N/A';
+    
+    const setFVRow = (val,idVal,idUp,idEst)=>{
+        if(val){
+            const up = ((val-precioActual)/precioActual)*100;
+            document.getElementById(idVal).textContent=fmtUSD(val);
+            document.getElementById(idUp).textContent=fmtPct(up);
+            document.getElementById(idEst).textContent=up>15?'🟩 Compra':up<-15?'🟥 Venta':'🟨 Fair';
+        }else{
+            document.getElementById(idVal).textContent='N/A';
+            document.getElementById(idUp).textContent='-';
+            document.getElementById(idEst).textContent='-';
+        }
+    };
+    setFVRow(fvLynch,'ig_fv_lynch','ig_fv_lynch_up','ig_fv_lynch_estado');
+    setFVRow(fvDcf,'ig_fv_dcf','ig_fv_dcf_up','ig_fv_dcf_estado');
+    setFVRow(fvGraham,'ig_fv_graham','ig_fv_graham_up','ig_fv_graham_estado');
+    document.getElementById('ig_fv_final').textContent = fvFinal?fmtUSD(fvFinal):'N/A';
+
+    // =============== DECISIÓN MARCE ===============
+    const sma200 = calcSMA(serie,200);
+    const razones=[];
+    const roe = parseAV(ov.ReturnOnEquityTTM);
+    
+    if(sma200!==null){
+        razones.push(`Precio ${precioActual>sma200?'>':'<'} SMA200 → tendencia ${precioActual>sma200?'alcista':'bajista'}`);
+    }
+    if(rsi14!==null){
+        razones.push(`RSI ${fmt(rsi14,0)} → ${rsi14>70?'sobrecomprado':rsi14<30?'sobrevendido':'neutral'}`);
+    }
+    if(upside!==null){
+        razones.push(`Fair Value ${fmtPct(upside)} → ${upside>0?'subvaluada':'sobrevaluada'}`);
+    }
+    if(roe){
+        razones.push(`ROE ${fmtPct(roe*100)} → rentabilidad ${roe>0.15?'excelente':roe>0.10?'buena':'regular'}`);
+    }
+    
+    const senalFinal = (precioActual>sma200 && rsi14<70 && upside!==null && upside>10 && roe>0.10) ? '🟩 COMPRA' :
+                       (upside!==null && upside<-15) || (rsi14>75) ? '🟥 VENTA' : '🟨 ESPERAR';
+    
+    const decBox=document.getElementById('ig_decision_senal');
+    decBox.textContent=senalFinal;
+    decBox.style.background = senalFinal.includes('COMPRA')?'#27ae60':senalFinal.includes('VENTA')?'#e74c3c':'#f1c40f';
+    decBox.style.color='white';
+    
+    const ul=document.getElementById('ig_decision_razones');
+    ul.innerHTML = razones.map(r=>`<li>${r}</li>`).join('');
+    
+    document.getElementById('ig_dec_entrada').textContent=fmtUSD(precioActual);
+    document.getElementById('ig_dec_stop_swing').textContent=atr14?fmtUSD(precioActual-2*atr14):'N/A';
+    document.getElementById('ig_dec_stop_corto').textContent=atr14?fmtUSD(precioActual-1*atr14):'N/A';
+    document.getElementById('ig_dec_obj1').textContent=fvFinal?fmtUSD(precioActual*1.10):'N/A';
+    document.getElementById('ig_dec_obj2').textContent=fvFinal?fmtUSD(fvFinal):'N/A';
+
+    // =============== PREMIUM ===============
+    const targetPrice = parseAV(ov.AnalystTargetPrice);
+    const targetUpside = targetPrice ? ((targetPrice-precioActual)/precioActual)*100 : null;
+    
+    document.getElementById('ig_an_target').textContent = targetPrice?fmtUSD(targetPrice):'N/A';
+    document.getElementById('ig_an_upside').textContent = targetUpside!==null?fmtPct(targetUpside):'N/A';
+    document.getElementById('ig_an_rating').textContent = targetPrice ? 'Disponible' : 'N/A';
+    document.getElementById('ig_an_count').textContent = 'Ver fuente';
+    
+    const latestQuarter = ov.LatestQuarter || 'N/A';
+    const divDate = parseAV(ov.DividendPerShare) ? `Paga: $${fmt(parseAV(ov.DividendPerShare),2)}` : 'No paga';
+    
+    document.getElementById('ig_ev_earn').textContent = latestQuarter;
+    document.getElementById('ig_ev_div').textContent = divDate;
+    
+    document.getElementById('ig_corp_sector').textContent = ov.Sector || 'N/A';
+    document.getElementById('ig_corp_industry').textContent = ov.Industry || 'N/A';
+    document.getElementById('ig_corp_ceo').textContent = 'Ver descripción';
+    document.getElementById('ig_corp_employees').textContent = ov.FullTimeEmployees ? fmt(parseAV(ov.FullTimeEmployees), 0) : 'N/A';
+    
+    // Escenarios
+    const base = fvFinal || precioActual;
+    const opt = base * 1.20;
+    const pes = base * 0.80;
+    
+    document.getElementById('ig_sc_opt').textContent = fmtUSD(opt);
+    document.getElementById('ig_sc_opt_pct').textContent = fmtPct(((opt-precioActual)/precioActual)*100);
+    document.getElementById('ig_sc_base').textContent = fmtUSD(base);
+    document.getElementById('ig_sc_base_pct').textContent = fvFinal?fmtPct(((base-precioActual)/precioActual)*100):'-';
+    document.getElementById('ig_sc_pes').textContent = fmtUSD(pes);
+    document.getElementById('ig_sc_pes_pct').textContent = fmtPct(((pes-precioActual)/precioActual)*100);
+
+    log('✅ Indicadores Generales completados (Sistema Híbrido)', 'success');
+}
+
+// =============== SCORING AUTOMÁTICO ===============
+
+function calcularScoring(precioActual, serie, alphaData) {
+    if (!alphaData || !alphaData.overview) {
+        log('⚠️ No hay datos suficientes para calcular scoring', 'warning');
+        return;
+    }
+    
+    const ov = alphaData.overview;
+    
+    // Calcular indicadores necesarios
+    const sma20 = calcSMA(serie, 20);
+    const sma50 = calcSMA(serie, 50);
+    const sma200 = calcSMA(serie, 200);
+    const rsi14 = calcRSI(serie, 14);
+    const macd = calcMACD(serie);
+    const atr14 = calcSMA(serie.slice(1).map((v,i)=>Math.abs(v-serie[i])),14);
+    
+    const eps = parseAV(ov.EPS) || 0;
+    const pe = parseAV(ov.PERatio) || 15;
+    const growth = parseAV(ov.QuarterlyRevenueGrowthYOY) || parseAV(ov.QuarterlyEarningsGrowthYOY) || 0.10;
+    const bookValue = parseAV(ov.BookValue) || 0;
+    const fvLynch = (eps && growth) ? eps * Math.min(pe, 20) * (1 + growth) : null;
+    const fvGraham = (eps > 0 && bookValue > 0) ? Math.sqrt(22.5 * eps * bookValue) : null;
+    const fvFinal = fvLynch || fvGraham || precioActual;
+    const upside = ((fvFinal-precioActual)/precioActual)*100;
+    
+    const roe = parseAV(ov.ReturnOnEquityTTM);
+    const roa = parseAV(ov.ReturnOnAssetsTTM);
+    const debtEquity = parseAV(alphaData.balance?.totalLiabilities) && parseAV(alphaData.balance?.totalShareholderEquity) ? 
+        parseAV(alphaData.balance.totalLiabilities) / parseAV(alphaData.balance.totalShareholderEquity) : null;
+    const currentRatio = parseAV(alphaData.balance?.totalCurrentAssets) && parseAV(alphaData.balance?.totalCurrentLiabilities) ?
+        parseAV(alphaData.balance.totalCurrentAssets) / parseAV(alphaData.balance.totalCurrentLiabilities) : null;
+    const beta = parseAV(ov.Beta) || 1;
+    
+    // ========== CORTO PLAZO ==========
+    let scoreCPMomentum = 0;
+    let factoresCP = [];
+    
+    // Momentum (30 pts)
+    if (rsi14 >= 40 && rsi14 <= 60) scoreCPMomentum += 10;
+    else if (rsi14 >= 30 && rsi14 <= 70) scoreCPMomentum += 7;
+    else if (rsi14 < 30) { scoreCPMomentum += 5; factoresCP.push('⚠️ RSI sobrevendido (' + rsi14.toFixed(0) + ')'); }
+    else { factoresCP.push('⚠️ RSI sobrecomprado (' + rsi14.toFixed(0) + ')'); }
+    
+    if (macd && macd.macd > macd.signal) { scoreCPMomentum += 10; factoresCP.push('✅ MACD positivo'); }
+    else { scoreCPMomentum += 5; factoresCP.push('⚠️ MACD negativo'); }
+    
+    scoreCPMomentum += 10; // Simplificado
+    
+    // Tendencia (25 pts)
+    let scoreCPTendencia = 0;
+    if (sma20 && precioActual > sma20) { scoreCPTendencia += 10; factoresCP.push('✅ Precio > SMA 20'); }
+    else { scoreCPTendencia += 5; factoresCP.push('⚠️ Precio < SMA 20'); }
+    
+    if (sma50 && precioActual > sma50) { scoreCPTendencia += 10; factoresCP.push('✅ Precio > SMA 50'); }
+    else { scoreCPTendencia += 5; }
+    
+    scoreCPTendencia += 5; // Base
+    
+    // Valuación CP (25 pts)
+    let scoreCPValuacion = 0;
+    if (upside > 10) { scoreCPValuacion += 15; factoresCP.push('✅ Fair Value +' + upside.toFixed(1) + '%'); }
+    else if (upside > 0) { scoreCPValuacion += 10; }
+    else { scoreCPValuacion += 5; factoresCP.push('⚠️ Sobrevaluada'); }
+    
+    if (pe < 20) scoreCPValuacion += 10;
+    else if (pe < 30) scoreCPValuacion += 5;
+    
+    // Volatilidad (20 pts)
+    let scoreCPVolatilidad = 0;
+    if (beta < 1) { scoreCPVolatilidad += 10; }
+    else if (beta < 1.2) { scoreCPVolatilidad += 7; }
+    else { scoreCPVolatilidad += 4; }
+    scoreCPVolatilidad += 10; // Base
+    
+    const scoreCPTotal = scoreCPMomentum + scoreCPTendencia + scoreCPValuacion + scoreCPVolatilidad;
+    
+    // ========== LARGO PLAZO ==========
+    let scoreLPValuacion = 0;
+    let factoresLP = [];
+    
+    // Valuación (30 pts)
+    if (upside > 30) { scoreLPValuacion += 20; factoresLP.push('✅ Fair Value +' + upside.toFixed(1) + '% (excelente)'); }
+    else if (upside > 20) { scoreLPValuacion += 15; factoresLP.push('✅ Fair Value +' + upside.toFixed(1) + '%'); }
+    else if (upside > 10) { scoreLPValuacion += 10; factoresLP.push('✅ Fair Value +' + upside.toFixed(1) + '%'); }
+    else if (upside > 0) { scoreLPValuacion += 5; }
+    else { factoresLP.push('⚠️ Sobrevaluada'); }
+    
+    if (pe < 15) scoreLPValuacion += 10;
+    else if (pe < 25) scoreLPValuacion += 5;
+    
+    // Calidad (30 pts)
+    let scoreLPCalidad = 0;
+    if (roe && roe > 0.25) { scoreLPCalidad += 10; factoresLP.push('✅ ROE excelente (' + (roe*100).toFixed(1) + '%)'); }
+    else if (roe && roe > 0.15) { scoreLPCalidad += 7; factoresLP.push('✅ ROE bueno (' + (roe*100).toFixed(1) + '%)'); }
+    else if (roe && roe > 0.10) { scoreLPCalidad += 5; }
+    else { factoresLP.push('⚠️ ROE bajo'); }
+    
+    if (debtEquity !== null && debtEquity < 1) { scoreLPCalidad += 10; factoresLP.push('✅ Bajo endeudamiento'); }
+    else if (debtEquity !== null && debtEquity < 2) { scoreLPCalidad += 7; }
+    else { factoresLP.push('⚠️ Endeudamiento alto'); }
+    
+    if (currentRatio && currentRatio > 1.5) scoreLPCalidad += 5;
+    else if (currentRatio && currentRatio > 1) scoreLPCalidad += 3;
+    
+    scoreLPCalidad += 5; // Base
+    
+    // Técnico LP (25 pts)
+    let scoreLPTecnico = 0;
+    if (sma200 && precioActual > sma200) { 
+        const diff = ((precioActual - sma200) / sma200) * 100;
+        scoreLPTecnico += 15; 
+        factoresLP.push('✅ Tendencia alcista LP (+' + diff.toFixed(1) + '% vs SMA200)'); 
+    }
+    else { 
+        scoreLPTecnico += 7; 
+        factoresLP.push('⚠️ Precio < SMA 200'); 
+    }
+    
+    scoreLPTecnico += 10; // Base
+    
+    // Riesgo (15 pts)
+    let scoreLPRiesgo = 0;
+    if (beta < 0.8) { scoreLPRiesgo += 8; factoresLP.push('✅ Beta defensiva (' + beta.toFixed(2) + ')'); }
+    else if (beta < 1.2) { scoreLPRiesgo += 6; }
+    else { factoresLP.push('⚠️ Alta volatilidad (Beta: ' + beta.toFixed(2) + ')'); }
+    
+    scoreLPRiesgo += 7; // Base
+    
+    const scoreLPTotal = scoreLPValuacion + scoreLPCalidad + scoreLPTecnico + scoreLPRiesgo;
+    
+    // ========== ACTUALIZAR UI ==========
+    actualizarScoringUI(scoreCPTotal, scoreCPMomentum, scoreCPTendencia, scoreCPValuacion, scoreCPVolatilidad, factoresCP, precioActual, atr14,
+                        scoreLPTotal, scoreLPValuacion, scoreLPCalidad, scoreLPTecnico, scoreLPRiesgo, factoresLP, fvFinal);
+    
+    log('✅ Scoring calculado: CP=' + scoreCPTotal + ', LP=' + scoreLPTotal, 'success');
+}
+
+function actualizarScoringUI(scoreCP, cpMomentum, cpTendencia, cpValuacion, cpVolatilidad, factoresCP, precio, atr,
+                             scoreLP, lpValuacion, lpCalidad, lpTecnico, lpRiesgo, factoresLP, fvFinal) {
+    // CORTO PLAZO
+    document.getElementById('score_cp_num').textContent = scoreCP;
+    document.getElementById('score_cp_gauge').style.background = 
+        `conic-gradient(#e67e22 ${scoreCP * 3.6}deg, #ecf0f1 ${scoreCP * 3.6}deg)`;
+    
+    const estrellasCP = scoreCP >= 85 ? '⭐⭐⭐⭐⭐' : scoreCP >= 70 ? '⭐⭐⭐⭐' : scoreCP >= 55 ? '⭐⭐⭐' : '⭐⭐';
+    document.getElementById('score_cp_estrellas').textContent = estrellasCP;
+    
+    const clasifCP = scoreCP >= 85 ? 'EXCELENTE' : scoreCP >= 70 ? 'MUY BUENO' : scoreCP >= 55 ? 'BUENO' : 'REGULAR';
+    document.getElementById('score_cp_clasificacion').textContent = clasifCP;
+    
+    const senalCP = scoreCP >= 70 ? '🟢 COMPRA' : scoreCP >= 55 ? '🟨 COMPRA MODERADA' : '🟥 ESPERAR';
+    const colorCP = scoreCP >= 70 ? '#27ae60' : scoreCP >= 55 ? '#f39c12' : '#e74c3c';
+    document.getElementById('score_cp_senal').textContent = senalCP;
+    document.getElementById('score_cp_senal').style.background = colorCP;
+    
+    const posicionCP = scoreCP >= 70 ? '5-7% capital' : scoreCP >= 55 ? '3-5% capital' : 'No recomendado';
+    document.getElementById('score_cp_posicion').textContent = 'Posición: ' + posicionCP;
+    
+    // Desglose CP
+    document.getElementById('score_cp_momentum_val').textContent = cpMomentum + '/30';
+    document.getElementById('score_cp_momentum_bar').style.width = (cpMomentum/30*100) + '%';
+    document.getElementById('score_cp_tendencia_val').textContent = cpTendencia + '/25';
+    document.getElementById('score_cp_tendencia_bar').style.width = (cpTendencia/25*100) + '%';
+    document.getElementById('score_cp_valuacion_val').textContent = cpValuacion + '/25';
+    document.getElementById('score_cp_valuacion_bar').style.width = (cpValuacion/25*100) + '%';
+    document.getElementById('score_cp_volatilidad_val').textContent = cpVolatilidad + '/20';
+    document.getElementById('score_cp_volatilidad_bar').style.width = (cpVolatilidad/20*100) + '%';
+    
+    document.getElementById('score_cp_factores').innerHTML = factoresCP.map(f => '<div>' + f + '</div>').join('');
+    
+    document.getElementById('score_cp_entrada').textContent = fmtUSD(precio);
+    document.getElementById('score_cp_stop').textContent = atr ? fmtUSD(precio - atr) + ' (-' + ((atr/precio)*100).toFixed(1) + '%)' : 'N/A';
+    document.getElementById('score_cp_target1').textContent = fmtUSD(precio * 1.05) + ' (+5%)';
+    document.getElementById('score_cp_target2').textContent = fmtUSD(precio * 1.10) + ' (+10%)';
+    document.getElementById('score_cp_hold').textContent = '2-8 semanas';
+    
+    // LARGO PLAZO
+    document.getElementById('score_lp_num').textContent = scoreLP;
+    document.getElementById('score_lp_gauge').style.background = 
+        `conic-gradient(#e67e22 ${scoreLP * 3.6}deg, #ecf0f1 ${scoreLP * 3.6}deg)`;
+    
+    const estrellasLP = scoreLP >= 85 ? '⭐⭐⭐⭐⭐' : scoreLP >= 70 ? '⭐⭐⭐⭐' : scoreLP >= 55 ? '⭐⭐⭐' : '⭐⭐';
+    document.getElementById('score_lp_estrellas').textContent = estrellasLP;
+    
+    const clasifLP = scoreLP >= 85 ? 'EXCELENTE' : scoreLP >= 70 ? 'MUY BUENO' : scoreLP >= 55 ? 'BUENO' : 'REGULAR';
+    document.getElementById('score_lp_clasificacion').textContent = clasifLP;
+    
+    const senalLP = scoreLP >= 85 ? '🟢 COMPRA FUERTE' : scoreLP >= 70 ? '🟢 COMPRA' : scoreLP >= 55 ? '🟨 COMPRA MODERADA' : '🟥 ESPERAR';
+    const colorLP = scoreLP >= 70 ? '#27ae60' : scoreLP >= 55 ? '#f39c12' : '#e74c3c';
+    document.getElementById('score_lp_senal').textContent = senalLP;
+    document.getElementById('score_lp_senal').style.background = colorLP;
+    
+    const posicionLP = scoreLP >= 85 ? '7-10% capital' : scoreLP >= 70 ? '5-7% capital' : scoreLP >= 55 ? '3-5% capital' : 'No recomendado';
+    document.getElementById('score_lp_posicion').textContent = 'Posición: ' + posicionLP;
+    
+    // Desglose LP
+    document.getElementById('score_lp_valuacion_val').textContent = lpValuacion + '/30';
+    document.getElementById('score_lp_valuacion_bar').style.width = (lpValuacion/30*100) + '%';
+    document.getElementById('score_lp_calidad_val').textContent = lpCalidad + '/30';
+    document.getElementById('score_lp_calidad_bar').style.width = (lpCalidad/30*100) + '%';
+    document.getElementById('score_lp_tecnico_val').textContent = lpTecnico + '/25';
+    document.getElementById('score_lp_tecnico_bar').style.width = (lpTecnico/25*100) + '%';
+    document.getElementById('score_lp_riesgo_val').textContent = lpRiesgo + '/15';
+    document.getElementById('score_lp_riesgo_bar').style.width = (lpRiesgo/15*100) + '%';
+    
+    document.getElementById('score_lp_factores').innerHTML = factoresLP.map(f => '<div>' + f + '</div>').join('');
+    
+    document.getElementById('score_lp_entrada').textContent = fmtUSD(precio);
+    document.getElementById('score_lp_stop').textContent = atr ? fmtUSD(precio - 2*atr) + ' (-' + ((2*atr/precio)*100).toFixed(1) + '%)' : 'N/A';
+    document.getElementById('score_lp_target').textContent = fvFinal ? fmtUSD(fvFinal) + ' (+' + (((fvFinal-precio)/precio)*100).toFixed(1) + '%)' : 'N/A';
+    document.getElementById('score_lp_hold').textContent = '2-4 años';
+    
+    // Recomendación final
+    let recomendacion = '<strong>Para ' + ACTIVE_TICKER + ':</strong><br><br>';
+    
+    if (scoreCP >= 70 && scoreLP >= 70) {
+        recomendacion += '• <strong>CORTO PLAZO:</strong> Setup favorable (score ' + scoreCP + ') ✅<br>';
+        recomendacion += '• <strong>LARGO PLAZO:</strong> Setup ' + (scoreLP >= 85 ? 'excelente' : 'favorable') + ' (score ' + scoreLP + ') ✅<br><br>';
+        recomendacion += '🎯 <strong>ACCIÓN SUGERIDA:</strong> Buena oportunidad tanto para swing como para inversión de largo plazo.';
+    } else if (scoreLP >= 85) {
+        recomendacion += '• <strong>CORTO PLAZO:</strong> Setup ' + (scoreCP >= 55 ? 'aceptable' : 'débil') + ' (score ' + scoreCP + ')<br>';
+        recomendacion += '• <strong>LARGO PLAZO:</strong> Setup excelente (score ' + scoreLP + ') ⭐<br><br>';
+        recomendacion += '🎯 <strong>ACCIÓN SUGERIDA:</strong> Priorizar LARGO PLAZO. Momento ideal para posición de hold.';
+    } else if (scoreCP >= 70) {
+        recomendacion += '• <strong>CORTO PLAZO:</strong> Setup favorable (score ' + scoreCP + ') ✅<br>';
+        recomendacion += '• <strong>LARGO PLAZO:</strong> Setup ' + (scoreLP >= 55 ? 'aceptable' : 'débil') + ' (score ' + scoreLP + ')<br><br>';
+        recomendacion += '🎯 <strong>ACCIÓN SUGERIDA:</strong> Priorizar CORTO PLAZO. Mejor para operación swing.';
+    } else {
+        recomendacion += '• <strong>CORTO PLAZO:</strong> Score ' + scoreCP + '/100<br>';
+        recomendacion += '• <strong>LARGO PLAZO:</strong> Score ' + scoreLP + '/100<br><br>';
+        recomendacion += '⚠️ <strong>ACCIÓN SUGERIDA:</strong> Esperar mejor momento de entrada o buscar otras oportunidades.';
+    }
+    
+    document.getElementById('score_recomendacion').innerHTML = recomendacion;
+}
+
+// =============== COMPARADOR MÚLTIPLE ===============
+
+const SECTOR_COMPETIDORES = {
+    "Technology": {
+        "MSFT": ["AAPL", "GOOGL", "META"],
+        "AAPL": ["MSFT", "GOOGL", "META"],
+        "GOOGL": ["MSFT", "AAPL", "META"],
+        "META": ["MSFT", "AAPL", "GOOGL"],
+        "NVDA": ["AMD", "INTC", "QCOM"],
+        "AMD": ["NVDA", "INTC", "QCOM"],
+        "INTC": ["NVDA", "AMD", "QCOM"],
+        "QCOM": ["NVDA", "AMD", "INTC"],
+        "AMZN": ["MSFT", "GOOGL", "META"],
+        "ADBE": ["CRM", "ORCL", "SAP"],
+        "CRM": ["ADBE", "ORCL", "SAP"],
+        "CSCO": ["JNPR", "ANET", "PANW"],
+        "NFLX": ["DIS", "PARA", "WBD"]
+    },
+    "Finance": {
+        "JPM": ["BAC", "WFC", "C"],
+        "BAC": ["JPM", "WFC", "C"],
+        "WFC": ["JPM", "BAC", "C"],
+        "C": ["JPM", "BAC", "WFC"],
+        "V": ["MA", "PYPL", "AXP"],
+        "MA": ["V", "PYPL", "AXP"],
+        "PYPL": ["V", "MA", "SQ"],
+        "GS": ["MS", "JPM", "BAC"]
+    },
+    "Consumer": {
+        "WMT": ["TGT", "COST", "AMZN"],
+        "TGT": ["WMT", "COST", "AMZN"],
+        "COST": ["WMT", "TGT", "AMZN"],
+        "KO": ["PEP", "MNST", "DPS"],
+        "PEP": ["KO", "MNST", "DPS"],
+        "MCD": ["SBUX", "YUM", "QSR"],
+        "SBUX": ["MCD", "YUM", "DPZ"],
+        "NKE": ["ADDYY", "LULU", "UAA"],
+        "HD": ["LOW", "WMT", "AMZN"],
+        "DIS": ["NFLX", "PARA", "WBD"]
+    },
+    "Healthcare": {
+        "UNH": ["CVS", "CI", "HUM"],
+        "JNJ": ["PFE", "ABBV", "MRK"],
+        "PFE": ["JNJ", "ABBV", "MRK"],
+        "ABBV": ["JNJ", "PFE", "BMY"]
+    },
+    "Energy": {
+        "XOM": ["CVX", "COP", "SLB"],
+        "CVX": ["XOM", "COP", "SLB"],
+        "COP": ["XOM", "CVX", "EOG"]
+    },
+    "Auto": {
+        "TSLA": ["F", "GM", "RIVN"],
+        "F": ["TSLA", "GM", "STLA"],
+        "GM": ["TSLA", "F", "STLA"]
+    },
+    "Telecom": {
+        "T": ["VZ", "TMUS", "CMCSA"],
+        "VZ": ["T", "TMUS", "CMCSA"],
+        "TMUS": ["T", "VZ", "CMCSA"]
+    },
+    "Industrial": {
+        "CAT": ["DE", "CMI", "PCAR"],
+        "BA": ["LMT", "RTX", "NOC"],
+        "GE": ["HON", "MMM", "EMR"]
+    },
+    "Materials": {
+        "GOLD": ["NEM", "AUY", "FNV"],
+        "NEM": ["GOLD", "AUY", "FNV"],
+        "VALE": ["BHP", "RIO", "FCX"]
+    }
+};
+
+let COMP_DATA = null;
+
+function obtenerCompetidores(ticker) {
+    // Buscar en todos los sectores
+    for (const sector in SECTOR_COMPETIDORES) {
+        if (SECTOR_COMPETIDORES[sector][ticker]) {
+            return {
+                sector: sector,
+                competidores: SECTOR_COMPETIDORES[sector][ticker]
+            };
+        }
+    }
+    // Si no encuentra, buscar en el mismo sector por Industry
+    return null;
+}
+
+async function actualizarComparador() {
+    if (!ACTIVE_TICKER || !ALPHA_DATA) {
+        alert('⚠️ Primero analiza un ticker');
+        return;
+    }
+
+    const modo = document.getElementById('comp_modo').value;
+    let competidores = [];
+
+    if (modo === 'auto') {
+        const info = obtenerCompetidores(ACTIVE_TICKER);
+        if (info) {
+            competidores = info.competidores;
+            document.getElementById('comp_sector_info').innerHTML = 
+                `📂 Sector: <strong>${info.sector}</strong> | Comparando contra líderes del sector`;
+        } else {
+            document.getElementById('comp_sector_info').innerHTML = 
+                `⚠️ No hay competidores predefinidos para este ticker. Usa modo Manual.`;
+            return;
+        }
+    } else {
+        const input = document.getElementById('comp_tickers').value.trim().toUpperCase();
+        if (!input) {
+            alert('⚠️ Ingresa tickers separados por coma');
+            return;
+        }
+        competidores = input.split(',').map(t => t.trim()).filter(t => t);
+        document.getElementById('comp_sector_info').innerHTML = 
+            `📂 Comparación Manual | Tickers: ${competidores.join(', ')}`;
+    }
+
+    if (competidores.length === 0) {
+        alert('⚠️ No hay competidores para comparar');
+        return;
+    }
+
+    // Obtener datos de todos los tickers
+    const tiempoEstimado = competidores.length * 13;
+    log(`🔍 Obteniendo datos de ${competidores.length} competidores... (⏱️ ~${tiempoEstimado} segundos)`, 'info');
+    log(`📊 Alpha Vantage: 5 llamadas/minuto → Espera de 13 seg entre cada ticker`, 'info');
+    
+    const allData = [{ ticker: ACTIVE_TICKER, data: ALPHA_DATA }];
+    
+    // Mostrar progreso inicial
+    document.getElementById('comp_tbody').innerHTML = 
+        `<tr><td colspan="6" style="padding: 20px; text-align: center; color: #667eea;">
+            <strong>⏳ Obteniendo datos... 0/${competidores.length} completados</strong><br>
+            <small>Tiempo estimado: ~${competidores.length * 13} segundos</small>
+        </td></tr>`;
+    
+    for (let i = 0; i < competidores.length; i++) {
+        const comp = competidores[i];
+        try {
+            // Delay de 13 seg entre llamadas (Alpha Vantage: 5 calls/min)
+            if (i > 0) {
+                log(`⏳ Esperando 13 seg para evitar rate limit... (${i}/${competidores.length})`, 'info');
+                
+                // Actualizar progreso en tabla
+                document.getElementById('comp_tbody').innerHTML = 
+                    `<tr><td colspan="6" style="padding: 20px; text-align: center; color: #667eea;">
+                        <strong>⏳ Esperando... ${i}/${competidores.length} completados</strong><br>
+                        <small>Esperando 13 segundos (rate limit API)...</small>
+                    </td></tr>`;
+                
+                await new Promise(resolve => setTimeout(resolve, 13000));
+            }
+            
+            // Actualizar progreso: obteniendo
+            document.getElementById('comp_tbody').innerHTML = 
+                `<tr><td colspan="6" style="padding: 20px; text-align: center; color: #667eea;">
+                    <strong>📡 Obteniendo ${comp}... ${i}/${competidores.length}</strong>
+                </td></tr>`;
+            
+            log(`📡 Obteniendo datos de ${comp}...`, 'info');
+            // Comparador usa Alpha Vantage directamente para tener datos consistentes entre competidores
+            const data = await obtenerDatosAlphaVantage(comp);
+            allData.push({ ticker: comp, data: data });
+            log(`✅ Datos de ${comp} obtenidos`, 'success');
+        } catch (err) {
+            log(`⚠️ No se pudo obtener datos de ${comp}: ${err.message}`, 'warning');
+        }
+    }
+
+    COMP_DATA = allData;
+    
+    // Resumen
+    const exitosos = allData.length - 1; // -1 porque el primero es el ticker activo
+    log(`✅ Comparación completada: ${exitosos}/${competidores.length} competidores obtenidos`, 'success');
+    
+    if (exitosos === 0) {
+        document.getElementById('comp_tbody').innerHTML = 
+            `<tr><td colspan="6" style="padding: 20px; text-align: center; color: #e74c3c;">
+                <strong>❌ No se pudieron obtener datos de ningún competidor</strong><br>
+                <small>Verifica el rate limit de API o intenta más tarde</small>
+            </td></tr>`;
+        return;
+    }
+    
+    renderizarComparador(allData, ACTIVE_TICKER);
+}
+
+function renderizarComparador(allData, activeTicker) {
+    const tickers = allData.map(d => d.ticker);
+    
+    // Headers
+    for (let i = 0; i < 4; i++) {
+        const th = document.getElementById(`comp_th_${i}`);
+        if (i < tickers.length) {
+            th.textContent = tickers[i];
+            if (tickers[i] === activeTicker) {
+                th.style.background = '#667eea';
+                th.style.fontWeight = '800';
+            } else {
+                th.style.background = '#2c3e50';
+            }
+        } else {
+            th.textContent = '-';
+            th.style.background = '#2c3e50';
+        }
+    }
+
+    // Métricas a comparar
+    const metricas = [
+        { label: 'Precio Actual', key: 'price', format: 'usd' },
+        { label: 'P/E Ratio', key: 'PERatio', format: 'num', invert: true },
+        { label: 'PEG Ratio', key: 'PEGRatio', format: 'num', invert: true },
+        { label: 'ROE %', key: 'ReturnOnEquityTTM', format: 'pct' },
+        { label: 'ROA %', key: 'ReturnOnAssetsTTM', format: 'pct' },
+        { label: 'Debt/Equity', key: 'debtEquity', format: 'num', invert: true },
+        { label: 'Margen Neto %', key: 'ProfitMargin', format: 'pct' },
+        { label: 'Beta', key: 'Beta', format: 'num', neutral: true },
+        { label: 'Dividend Yield %', key: 'DividendYield', format: 'pct' },
+        { label: 'Revenue Growth %', key: 'QuarterlyRevenueGrowthYOY', format: 'pct' },
+        { label: 'EPS', key: 'EPS', format: 'usd' }
+    ];
+
+    let tbody = '';
+    const valores = {};
+
+    metricas.forEach(m => {
+        let row = `<tr><td style="padding: 8px; font-weight: 600; border: 1px solid #e0e0e0;">${m.label}</td>`;
+        const vals = [];
+
+        for (let i = 0; i < 4; i++) {
+            if (i < allData.length) {
+                const ov = allData[i].data.overview;
+                let val = null;
+
+                if (m.key === 'price') {
+                    val = parseAV(ov.LatestPrice) || parseAV(ov['50DayMovingAverage']);
+                } else if (m.key === 'debtEquity') {
+                    const debt = parseAV(allData[i].data.balance?.totalLiabilities);
+                    const equity = parseAV(allData[i].data.balance?.totalShareholderEquity);
+                    val = (debt && equity) ? debt / equity : null;
+                } else {
+                    val = parseAV(ov[m.key]);
+                }
+
+                vals.push(val);
+
+                let formatted = '-';
+                if (val !== null && val !== undefined) {
+                    if (m.format === 'usd') formatted = fmtUSD(val);
+                    else if (m.format === 'pct') formatted = (val * 100).toFixed(2) + '%';
+                    else formatted = val.toFixed(2);
+                }
+
+                row += `<td id="comp_${m.key}_${i}" style="padding: 8px; text-align: center; border: 1px solid #e0e0e0; font-weight: 600;">${formatted}</td>`;
+            } else {
+                row += `<td style="padding: 8px; text-align: center; border: 1px solid #e0e0e0;">-</td>`;
+            }
+        }
+
+        // Promedio sector
+        const validVals = vals.filter(v => v !== null && v !== undefined && !isNaN(v));
+        const avg = validVals.length > 0 ? validVals.reduce((a, b) => a + b, 0) / validVals.length : null;
+        valores[m.key] = { vals, avg, invert: m.invert, neutral: m.neutral };
+
+        let avgFormatted = '-';
+        if (avg !== null) {
+            if (m.format === 'usd') avgFormatted = fmtUSD(avg);
+            else if (m.format === 'pct') avgFormatted = (avg * 100).toFixed(2) + '%';
+            else avgFormatted = avg.toFixed(2);
+        }
+
+        row += `<td style="padding: 8px; text-align: center; border: 1px solid #e0e0e0; background: #f8f9fa; font-weight: 700;">${avgFormatted}</td>`;
+        row += '</tr>';
+        tbody += row;
+    });
+
+    document.getElementById('comp_tbody').innerHTML = tbody;
+
+    // Colorear celdas
+    for (const key in valores) {
+        const { vals, avg, invert, neutral } = valores[key];
+        if (avg === null || neutral) continue;
+
+        vals.forEach((val, i) => {
+            const cell = document.getElementById(`comp_${key}_${i}`);
+            if (!cell || val === null) return;
+
+            const diff = ((val - avg) / avg) * 100;
+            let color = '#fff';
+
+            if (invert) {
+                // Menor es mejor
+                if (diff < -10) color = '#d4edda'; // Verde
+                else if (diff > 10) color = '#f8d7da'; // Rojo
+                else color = '#fff3cd'; // Amarillo
+            } else {
+                // Mayor es mejor
+                if (diff > 10) color = '#d4edda'; // Verde
+                else if (diff < -10) color = '#f8d7da'; // Rojo
+                else color = '#fff3cd'; // Amarillo
+            }
+
+            cell.style.background = color;
+        });
+    }
+
+    // Generar análisis
+    generarAnalisisComparativo(allData, activeTicker, valores);
+}
+
+function generarAnalisisComparativo(allData, activeTicker, valores) {
+    const activeIndex = allData.findIndex(d => d.ticker === activeTicker);
+    if (activeIndex === -1) return;
+
+    document.getElementById('comp_ticker_name').textContent = activeTicker;
+
+    // Ranking por categoría
+    let ranking = '<div style="line-height: 2;">';
+    
+    // Valuación (P/E, PEG)
+    const peVals = valores['PERatio'].vals.map((v, i) => ({ ticker: allData[i].ticker, val: v }))
+        .filter(x => x.val !== null).sort((a, b) => a.val - b.val);
+    if (peVals.length > 0) {
+        ranking += `<strong>🥇 Valuación:</strong> ${peVals[0].ticker} (P/E: ${peVals[0].val.toFixed(1)})<br>`;
+    }
+
+    // Rentabilidad (ROE)
+    const roeVals = valores['ReturnOnEquityTTM'].vals.map((v, i) => ({ ticker: allData[i].ticker, val: v }))
+        .filter(x => x.val !== null).sort((a, b) => b.val - a.val);
+    if (roeVals.length > 0) {
+        ranking += `<strong>🥈 Rentabilidad:</strong> ${roeVals[0].ticker} (ROE: ${(roeVals[0].val * 100).toFixed(1)}%)<br>`;
+    }
+
+    // Crecimiento
+    const growthVals = valores['QuarterlyRevenueGrowthYOY'].vals.map((v, i) => ({ ticker: allData[i].ticker, val: v }))
+        .filter(x => x.val !== null).sort((a, b) => b.val - a.val);
+    if (growthVals.length > 0) {
+        ranking += `<strong>🥉 Crecimiento:</strong> ${growthVals[0].ticker} (Rev Growth: ${(growthVals[0].val * 100).toFixed(1)}%)<br>`;
+    }
+
+    // Solvencia (Debt/Equity menor)
+    const deVals = valores['debtEquity'].vals.map((v, i) => ({ ticker: allData[i].ticker, val: v }))
+        .filter(x => x.val !== null).sort((a, b) => a.val - b.val);
+    if (deVals.length > 0) {
+        ranking += `<strong>🏅 Solvencia:</strong> ${deVals[0].ticker} (D/E: ${deVals[0].val.toFixed(2)})<br>`;
+    }
+
+    ranking += '</div>';
+    document.getElementById('comp_ranking').innerHTML = ranking;
+
+    // Posición del ticker activo
+    let posicion = '<div style="line-height: 2;">';
+    
+    const pePos = peVals.findIndex(x => x.ticker === activeTicker);
+    if (pePos !== -1) {
+        posicion += `• <strong>Valuación:</strong> ${pePos + 1}º de ${peVals.length} ${pePos === 0 ? '🟢 (Mejor P/E)' : pePos === peVals.length - 1 ? '🟥 (P/E más alto)' : '🟨'}<br>`;
+    }
+
+    const roePos = roeVals.findIndex(x => x.ticker === activeTicker);
+    if (roePos !== -1) {
+        posicion += `• <strong>Rentabilidad:</strong> ${roePos + 1}º de ${roeVals.length} ${roePos === 0 ? '🟢 (Mejor ROE)' : roePos === roeVals.length - 1 ? '🟥 (ROE más bajo)' : '🟨'}<br>`;
+    }
+
+    const growthPos = growthVals.findIndex(x => x.ticker === activeTicker);
+    if (growthPos !== -1) {
+        posicion += `• <strong>Crecimiento:</strong> ${growthPos + 1}º de ${growthVals.length} ${growthPos === 0 ? '🟢 (Líder)' : growthPos === growthVals.length - 1 ? '🟥 (Más lento)' : '🟨'}<br>`;
+    }
+
+    const dePos = deVals.findIndex(x => x.ticker === activeTicker);
+    if (dePos !== -1) {
+        posicion += `• <strong>Solvencia:</strong> ${dePos + 1}º de ${deVals.length} ${dePos === 0 ? '🟢 (Menos deuda)' : dePos === deVals.length - 1 ? '🟥 (Más deuda)' : '🟨'}<br>`;
+    }
+
+    posicion += '</div>';
+    document.getElementById('comp_posicion').innerHTML = posicion;
+
+    // Análisis general
+    let analisis = '<div style="line-height: 2;">';
+    
+    const pe = valores['PERatio'].vals[activeIndex];
+    const peAvg = valores['PERatio'].avg;
+    if (pe && peAvg) {
+        const peDiff = ((pe - peAvg) / peAvg) * 100;
+        if (peDiff > 15) {
+            analisis += `⚠️ <strong>${activeTicker}</strong> está <strong>SOBREVALORADO</strong> vs sector (P/E +${peDiff.toFixed(0)}%)<br>`;
+        } else if (peDiff < -15) {
+            analisis += `✅ <strong>${activeTicker}</strong> está <strong>SUBVALORADO</strong> vs sector (P/E ${peDiff.toFixed(0)}%)<br>`;
+        } else {
+            analisis += `🟨 <strong>${activeTicker}</strong> tiene valuación <strong>JUSTA</strong> vs sector<br>`;
+        }
+    }
+
+    const roe = valores['ReturnOnEquityTTM'].vals[activeIndex];
+    const roeAvg = valores['ReturnOnEquityTTM'].avg;
+    if (roe && roeAvg) {
+        const roeDiff = ((roe - roeAvg) / roeAvg) * 100;
+        if (roeDiff > 15) {
+            analisis += `✅ <strong>${activeTicker}</strong> tiene <strong>EXCELENTE rentabilidad</strong> (ROE ${roeDiff.toFixed(0)}% sobre sector)<br>`;
+        } else if (roeDiff < -15) {
+            analisis += `⚠️ <strong>${activeTicker}</strong> tiene <strong>BAJA rentabilidad</strong> vs sector<br>`;
+        }
+    }
+
+    const growth = valores['QuarterlyRevenueGrowthYOY'].vals[activeIndex];
+    const growthAvg = valores['QuarterlyRevenueGrowthYOY'].avg;
+    if (growth && growthAvg) {
+        const growthDiff = ((growth - growthAvg) / growthAvg) * 100;
+        if (growthDiff > 20) {
+            analisis += `🚀 <strong>${activeTicker}</strong> crece <strong>MÁS RÁPIDO</strong> que el sector<br>`;
+        } else if (growthDiff < -20) {
+            analisis += `⚠️ <strong>${activeTicker}</strong> crece <strong>MÁS LENTO</strong> que el sector<br>`;
+        }
+    }
+
+    // Mejor alternativa
+    if (peVals.length > 1 && peVals[0].ticker !== activeTicker) {
+        analisis += `<br>💡 <strong>MEJOR ALTERNATIVA:</strong> ${peVals[0].ticker} (mejor valuación del sector)`;
+    }
+
+    analisis += '</div>';
+    document.getElementById('comp_analisis').innerHTML = analisis;
+}
+
+// Toggle modo manual
+document.addEventListener('DOMContentLoaded', () => {
+    const modoSelect = document.getElementById('comp_modo');
+    if (modoSelect) {
+        modoSelect.addEventListener('change', function() {
+            const manual = document.getElementById('comp_manual_input');
+            if (this.value === 'manual') {
+                manual.style.display = 'block';
+            } else {
+                manual.style.display = 'none';
+            }
+        });
+    }
+});
+
+function limpiar() {
+    document.querySelectorAll('input').forEach(i => i.value = '');
+    log('🗑️ Formulario limpiado', 'info');
+}
+
+function nearestPriceAt(series, timestamps, targetDate){
+    if(!series || !timestamps || !timestamps.length) return null;
+    const t = new Date(targetDate).getTime()/1000; 
+    let bestIdx = 0, bestDist = Infinity;
+    for(let i=0;i<timestamps.length;i++){
+        const dist = Math.abs(timestamps[i]-t);
+        if(dist<bestDist){ bestDist=dist; bestIdx=i; }
+    }
+    return series[bestIdx] ?? null;
+}
+
+async function calcularPerfVsSPY(){
+    try{
+        if(!ACTIVE_TICKER) { alert('Primero analizá un ticker.'); return; }
+        const desde = document.getElementById('perf_desde').value;
+        const hasta = document.getElementById('perf_hasta').value;
+        if(!desde || !hasta) { alert('Selecciona fechas.'); return; }
+        
+        const btn = document.getElementById('btnPerf');
+        btn.disabled = true; btn.textContent = '⏳';
+
+        const p0 = nearestPriceAt(ACTIVE_SERIE, ACTIVE_TIMESTAMPS, desde);
+        const p1 = nearestPriceAt(ACTIVE_SERIE, ACTIVE_TIMESTAMPS, hasta);
+        
+        const spy = await obtenerStock('SPY');
+        const spy0 = nearestPriceAt(spy.serie, spy.timestamps, desde);
+        const spy1 = nearestPriceAt(spy.serie, spy.timestamps, hasta);
+
+        if(!p0 || !p1 || !spy0 || !spy1) throw new Error('Datos insuficientes en fechas');
+
+        const rActivo = calcRent(p0, p1);
+        const rSpy = calcRent(spy0, spy1);
+        const dif = rActivo - rSpy;
+
+        document.getElementById('perf_activo_pct').textContent = fmtPct(rActivo);
+        document.getElementById('perf_spy_pct').textContent = fmtPct(rSpy);
+        document.getElementById('perf_dif_pct').textContent = fmtPct(dif);
+        document.getElementById('perf_ganador').textContent = dif > 0 ? `🏆 Ganas al mercado` : `📉 Pierdes vs mercado`;
+
+    }catch(e){
+        alert('Error calculando performance: ' + e.message);
+    }finally{
+        document.getElementById('btnPerf').disabled=false; 
+        document.getElementById('btnPerf').textContent='Calcular';
+    }
+}
+
+// =============== SISTEMA HÍBRIDO - YAHOO PRIMERO, ALPHA BACKUP ===============
+
+async function obtenerDatosFundamentales(ticker) {
+    log(`🔄 Iniciando obtención de datos fundamentales para ${ticker}...`);
+    
+    // Intento 1: Yahoo Finance (ilimitado, sin API key)
+    log(`  🟢 Intentando con Yahoo Finance (fuente primaria)...`, 'info');
+    let data = await obtenerDatosYahooFinance(ticker);
+    
+    if (data) {
+        log(`✅ Datos obtenidos exitosamente de Yahoo Finance`, 'success');
+        return data;
+    }
+    
+    // Intento 2: Alpha Vantage (backup, 25 requests/día)
+    log(`  🟡 Yahoo Finance no disponible, intentando con Alpha Vantage (backup)...`, 'warning');
+    data = await obtenerDatosAlphaVantage(ticker);
+    
+    if (data) {
+        log(`✅ Datos obtenidos exitosamente de Alpha Vantage`, 'success');
+        return data;
+    }
+    
+    // Sin datos
+    log(`❌ No se pudieron obtener datos de ninguna fuente`, 'error');
+    return null;
+}
+
+async function analizar() {
+    const ticker = document.getElementById('f_ticker').value.trim().toUpperCase();
+    const fecha = document.getElementById('f_fecha').value;
+    const cantidad = parseInt(parseNum(document.getElementById('f_cantidad').value));
+    const precioARSCedear = parseNum(document.getElementById('f_precio_ars').value);
+    const precioUSDAccion = parseNum(document.getElementById('f_precio_usd_accion').value);
+    const targetPrice = parseNum(document.getElementById('f_target_price').value) || 0;
+
+    if (!ticker || !fecha || !cantidad || !precioARSCedear || !precioUSDAccion) {
+        alert('❌ Completa todos los campos obligatorios');
+        return;
+    }
+
+    const btn = document.getElementById('btnAnalizar');
+    btn.textContent = '⏳ Analizando...';
+    btn.disabled = true;
+
+    try {
+        await cargarDolares();
+        
+        // Obtener datos históricos (Yahoo)
+        const stock = await obtenerStock(ticker);
+        ACTIVE_TICKER = ticker;
+        ACTIVE_SERIE = stock.serie;
+        ACTIVE_TIMESTAMPS = stock.timestamps;
+
+        // Obtener datos fundamentales (Sistema Híbrido: Yahoo primero, Alpha backup)
+        ALPHA_DATA = await obtenerDatosFundamentales(ticker);
+        
+        // Mostrar fuente usada
+        if (ALPHA_DATA?.source) {
+            const sourceIcon = ALPHA_DATA.source === 'Yahoo Finance' ? '🟢' : '🟡';
+            log(`${sourceIcon} Fuente de datos: ${ALPHA_DATA.source}`, 'info');
+        }
+        
+        const precioActual = ALPHA_DATA?.overview?.['50DayMovingAverage'] ? parseAV(ALPHA_DATA.overview['50DayMovingAverage']) : stock.precio;
+
+        const cedear = DB_CEDEARS[ticker] || { ratio: 10, industria: 'N/A' };
+        
+        // SMA Logic
+        const p = precioActual;
+        let sma21 = calcSMA(stock.serie, 21), sma50 = calcSMA(stock.serie, 50), sma100 = calcSMA(stock.serie, 100), sma200 = calcSMA(stock.serie, 200);
+        document.getElementById('moduloSMA').style.display = 'block';
+        document.getElementById('sma21').textContent = sma21 !== null ? fmtUSD(sma21) : `N/A (requiere ${21} días)`;
+        document.getElementById('sma50').textContent = sma50 !== null ? fmtUSD(sma50) : `N/A (requiere ${50} días)`;
+        document.getElementById('sma100').textContent = sma100 !== null ? fmtUSD(sma100) : `N/A (requiere ${100} días)`;
+        document.getElementById('sma200').textContent = sma200 !== null ? fmtUSD(sma200) : `N/A (requiere ${200} días)`;
+        
+        document.getElementById('tendCorto').textContent = sma21 !== null ? (p > sma21 ? '🐂 ALCISTA' : '🐻 BAJISTA') : 'N/A';
+        document.getElementById('tendMediano').textContent = sma100 !== null ? (p > sma100 ? '🐂 ALCISTA' : '🐻 BAJISTA') : 'N/A';
+        
+        let tendenciaLargoTexto = `N/A (requiere ${200} días)`;
+        if (sma200 !== null) {
+            tendenciaLargoTexto = p > sma200 ? '🐂 ALCISTA' : '🐻 BAJISTA';
+        }
+        document.getElementById('tendLargo').textContent = tendenciaLargoTexto;
+
+        // Mostrar módulo Indicadores Generales
+        document.getElementById('moduloIndicadoresGenerales').style.display = 'block';
+        initIndicadoresGeneralesUI();
+        await actualizarIndicadoresGenerales(p, stock.serie, ALPHA_DATA);
+        
+        // Calcular Scoring automático
+        calcularScoring(p, stock.serie, ALPHA_DATA);
+
+        // Cálculos financieros
+        const precioUSDCedearCompra = precioUSDAccion / cedear.ratio;
+        const precioUSDCedearHoy = p / cedear.ratio;
+        const precioARSCedearTeoricoCCL = precioUSDCedearHoy * DOLARES.ccl;
+        const precioARSCedearHoy = precioUSDCedearHoy * DOLARES.ccl;
+        
+        // ✅ CALCULAR CCL IMPLÍCITO DE COMPRA
+        const cclCompra = precioARSCedear / precioUSDCedearCompra;
+        
+        // ✅ FÓRMULA CORRECTA AMEBA: RendimientoUSD = cantidad × ((PrecioActualARS / CCLActual) - (PrecioCompraARS / CCLCompra))
+        const costoUnitarioUSD = precioARSCedear / cclCompra;  // Precio compra en USD
+        const valorUnitarioActualUSD = precioARSCedearHoy / DOLARES.ccl;  // Precio actual en USD
+        const rendimientoTotalUSD = cantidad * (valorUnitarioActualUSD - costoUnitarioUSD);
+        
+        // Valores totales
+        const valorCompraARS = precioARSCedear * cantidad;
+        const valorCompraUSD = costoUnitarioUSD * cantidad;
+        const valorActualARS = precioARSCedearTeoricoCCL * cantidad;
+        const valorActualUSD = valorUnitarioActualUSD * cantidad;
+        
+        // Porcentajes de rendimiento
+        const rentARS = calcRent(valorCompraARS, valorActualARS);
+        const rentUSD = (rendimientoTotalUSD / valorCompraUSD) * 100;  // ✅ Rendimiento USD correcto
+        
+        const dias = calcDias(fecha);
+        const marketCapCCL = valorActualUSD;
+        
+        const valorRealCedear = (precioUSDCedearHoy * DOLARES.ccl) / cedear.ratio;
+        const valorCCLAccion = (precioARSCedear / precioUSDCedearCompra);
+        
+        // Conveniencia
+        document.getElementById('f_mejor_en_pesos').value = fmtARS(precioARSCedearTeoricoCCL);
+        document.getElementById('f_mejor_en_usd').value = fmtUSD(precioUSDCedearHoy);
+
+        const mejorEnPesos = parseNum(document.getElementById('f_mejor_en_pesos').value) || 0;
+        const mejorEnUSD = parseNum(document.getElementById('f_mejor_en_usd').value) || 0;
+        let textoConvieneComprar = '-';
+        if (mejorEnPesos > 0 && mejorEnUSD > 0 && DOLARES.ccl > 0) {
+            const ratioMejor = mejorEnPesos / mejorEnUSD;
+            if (ratioMejor > DOLARES.ccl) {
+                textoConvieneComprar = 'Conviene Comprar EN PESOS';
+            } else if (ratioMejor < DOLARES.ccl) {
+                textoConvieneComprar = 'Conviene Comprar EN DOLAR';
+            } else {
+                textoConvieneComprar = 'Indistinto';
+            }
+        }
+
+        let textoConvieneVender = '-';
+        if (precioUSDCedearCompra > 0 && precioUSDCedearHoy > 0) {
+            const ratioCompra = precioARSCedear / precioUSDCedearCompra;
+            const ratioActual = precioARSCedearHoy / precioUSDCedearHoy;
+            const diffRatio = ratioActual - ratioCompra;
+            if (diffRatio > 0) {
+                textoConvieneVender = 'Conviene Vender EN USD';
+            } else if (diffRatio < 0) {
+                textoConvieneVender = 'Conviene Vender EN ARS';
+            } else {
+                textoConvieneVender = 'Indistinto';
+            }
+        }
+
+        document.getElementById('convieneComprar').textContent = textoConvieneComprar;
+        document.getElementById('convieneVender').textContent = textoConvieneVender;
+
+        // Renderizado
+        document.getElementById('resultadosContainer').style.display = 'grid';
+        document.getElementById('moduloGanancia').style.display = 'block';
+        document.getElementById('filaGanSMA').style.display = 'flex';
+        document.getElementById('filaSMAPerf').style.display = 'flex';
+        document.getElementById('moduloPerfSPY').style.display = 'block';
+        document.getElementById('moduloGrafico').style.display = 'block';
+        document.getElementById('moduloConveniencia').style.display = 'block';
+
+        // Llenado de datos
+        document.getElementById('displayTicker').textContent = ticker;
+        document.getElementById('displayCedears').textContent = cantidad;
+        document.getElementById('displayRatio').textContent = cedear.ratio;
+        document.getElementById('displayIndustria').textContent = ALPHA_DATA?.overview?.Industry || cedear.industria || 'N/A';
+        document.getElementById('sFecha').textContent = fmtDate(fecha);
+        document.getElementById('sCotizCompra').textContent = fmtARS(precioARSCedear / precioUSDCedearCompra);
+        document.getElementById('sDias').textContent = dias;
+        document.getElementById('sAccionUSD').textContent = fmtUSD(p);
+        document.getElementById('sCedearUSD').textContent = fmtUSD(precioUSDCedearHoy);
+        document.getElementById('sCedearARS').textContent = fmtARS(precioARSCedearTeoricoCCL);
+
+        document.getElementById('gTotalDias').textContent = dias;
+        document.getElementById('gPorcentajeUSD').textContent = fmtPct(rentUSD);
+        document.getElementById('gPorcentajeARS').textContent = fmtPct(rentARS);
+        document.getElementById('gVariacionDiariaUSD').textContent = fmtPct(rentUSD / (dias||1));
+        document.getElementById('gVariacionDiariaARS').textContent = fmtPct(rentARS / (dias||1));
+        document.getElementById('gProyeccionAnualUSD').textContent = fmtPct((rentUSD / (dias||1)) * 365);
+        
+        document.getElementById('gGananciaActualUSD').textContent = fmtUSD(rendimientoTotalUSD);
+        document.getElementById('gGananciaActualARS').textContent = fmtARS(valorActualARS - valorCompraARS);
+        if(rendimientoTotalUSD >= 0) document.getElementById('gGananciaActualUSD').className = 'positivo';
+        else document.getElementById('gGananciaActualUSD').className = 'negativo';
+
+        document.getElementById('gInversionUSD').textContent = fmtUSD(valorCompraUSD);
+        document.getElementById('gInversionARS').textContent = fmtARS(valorCompraARS);
+        document.getElementById('gMarketCapitalUSD').textContent = fmtUSD(valorActualUSD);
+        document.getElementById('gMarketCapitalARS').textContent = fmtARS(valorActualARS);
+
+        document.getElementById('gCotizCompraARS').textContent = fmtARS(precioARSCedear);
+        document.getElementById('gCotizActualARS').textContent = fmtARS(precioARSCedearTeoricoCCL);
+        document.getElementById('gDifARS').textContent = fmtPct(calcRent(precioARSCedear, precioARSCedearTeoricoCCL));
+        document.getElementById('gCotizCompraAccionUSD').textContent = fmtUSD(precioUSDAccion);
+        document.getElementById('gCotizActualAccionUSD').textContent = fmtUSD(p);
+        document.getElementById('gDifAccionUSD').textContent = fmtPct(calcRent(precioUSDAccion, p));
+        
+        // ✅ Mostrar precios CEDEAR en USD correctos (considerando CCL)
+        document.getElementById('gCotizCompraCedearUSD').textContent = fmtUSD(costoUnitarioUSD);
+        document.getElementById('gCotizActualCedearUSD').textContent = fmtUSD(valorUnitarioActualUSD);
+        document.getElementById('gDifCedearUSD').textContent = fmtPct(rentUSD);
+
+        document.getElementById('gValorRealCedear').textContent = fmtARS(precioARSCedearTeoricoCCL);
+        document.getElementById('gValorCCLAccion').textContent = fmtARS(valorCCLAccion);
+        document.getElementById('gValorRealCedearPct').textContent = fmtPct(calcRent(precioARSCedearTeoricoCCL, valorRealCedear));
+        document.getElementById('gValorCCLAccionPct').textContent = fmtPct(calcRent(DOLARES.ccl, valorCCLAccion));
+
+        document.getElementById('gMarketCapCCL').textContent = fmtUSD(marketCapCCL);
+        document.getElementById('gTargetPrice').textContent = targetPrice ? fmtUSD(targetPrice) : '-';
+        document.getElementById('gDiferenciaTarget').textContent = targetPrice ? fmtPct(((targetPrice - p)/p)*100) : '-';
+
+        // Renderizar gráfico de candlesticks
+        await renderizarGraficoCandlesticks();
+
+        document.getElementById('resultadosContainer').scrollIntoView({ behavior: 'smooth' });
+        log('✅ Análisis completado correctamente (Sistema Híbrido)', 'success');
+
+    } catch (e) {
+        console.error(e);
+        log('❌ Error crítico: ' + e.message, 'error');
+        alert('Hubo un error al analizar. Revisa el LOG al final de la página.');
+    } finally {
+        btn.textContent = '🔍 ANALIZAR';
+        btn.disabled = false;
+    }
+}
+
+// =============== GRÁFICO DE CANDLESTICKS ===============
+
+let GRAFICO_CHART = null;
+let GRAFICO_OHLC_DATA = null;
+
+async function obtenerDatosOHLC(ticker, dias = 90) {
+    log(`📊 Obteniendo datos OHLC para gráfico (${dias} días)...`);
+    
+    const proxies = [
+        'https://corsproxy.io/?',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://api.allorigins.win/raw?url='
+    ];
+    
+    // Calcular timestamps
+    const end = Math.floor(Date.now() / 1000);
+    const start = end - (dias * 86400);
+    
+    for (let i = 0; i < proxies.length; i++) {
+        try {
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?period1=${start}&period2=${end}&interval=1d`;
+            const proxyUrl = proxies[i] + encodeURIComponent(url);
+            const r = await fetch(proxyUrl);
+            
+            if (!r.ok) continue;
+            
+            const data = await r.json();
+            
+            if (data.chart && data.chart.result && data.chart.result[0]) {
+                const result = data.chart.result[0];
+                const timestamps = result.timestamp;
+                const quote = result.indicators.quote[0];
+                
+                // Construir datos OHLC
+                const ohlcData = [];
+                for (let j = 0; j < timestamps.length; j++) {
+                    const open = quote.open[j];
+                    const high = quote.high[j];
+                    const low = quote.low[j];
+                    const close = quote.close[j];
+                    const volume = quote.volume[j];
+                    
+                    if (open && high && low && close) {
+                        ohlcData.push({
+                            x: new Date(timestamps[j] * 1000),
+                            y: [open, high, low, close],
+                            volume: volume || 0
+                        });
+                    }
+                }
+                
+                log(`✅ Datos OHLC obtenidos (${ohlcData.length} velas)`, 'success');
+                return ohlcData;
+            }
+        } catch (e) {
+            continue;
+        }
+    }
+    
+    log('❌ No se pudieron obtener datos OHLC', 'error');
+    return [];
+}
+
+function calcularSMAParaGrafico(ohlcData, period) {
+    if (!ohlcData || ohlcData.length < period) return [];
+    
+    const smaData = [];
+    
+    for (let i = period - 1; i < ohlcData.length; i++) {
+        let sum = 0;
+        for (let j = 0; j < period; j++) {
+            sum += ohlcData[i - j].y[3]; // Close price
+        }
+        const sma = sum / period;
+        smaData.push({
+            x: ohlcData[i].x,
+            y: sma
+        });
+    }
+    
+    return smaData;
+}
+
+async function renderizarGraficoCandlesticks() {
+    if (!ACTIVE_TICKER) return;
+    
+    const periodo = parseInt(document.getElementById('grafico_periodo').value) || 90;
+    const mostrarSMA20 = document.getElementById('grafico_sma20').checked;
+    const mostrarSMA50 = document.getElementById('grafico_sma50').checked;
+    const mostrarSMA200 = document.getElementById('grafico_sma200').checked;
+    
+    log('📊 Renderizando gráfico de línea...');
+    
+    // Obtener datos OHLC (usamos solo close)
+    GRAFICO_OHLC_DATA = await obtenerDatosOHLC(ACTIVE_TICKER, periodo);
+    
+    if (!GRAFICO_OHLC_DATA || GRAFICO_OHLC_DATA.length === 0) {
+        document.getElementById('chartCandlestick').innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">No se pudieron cargar los datos del gráfico</div>';
+        return;
+    }
+    
+    // Extraer solo precios de cierre para la línea
+    const precioData = GRAFICO_OHLC_DATA.map(d => ({
+        x: d.x,
+        y: d.y[3] // Close price
+    }));
+    
+    // Preparar series
+    const series = [{
+        name: ACTIVE_TICKER,
+        type: 'line',
+        data: precioData
+    }];
+    
+    // Agregar SMAs si están seleccionadas
+    if (mostrarSMA20 && GRAFICO_OHLC_DATA.length >= 20) {
+        const sma20Data = calcularSMAParaGrafico(GRAFICO_OHLC_DATA, 20);
+        series.push({
+            name: 'SMA 20',
+            type: 'line',
+            data: sma20Data
+        });
+    }
+    
+    if (mostrarSMA50 && GRAFICO_OHLC_DATA.length >= 50) {
+        const sma50Data = calcularSMAParaGrafico(GRAFICO_OHLC_DATA, 50);
+        series.push({
+            name: 'SMA 50',
+            type: 'line',
+            data: sma50Data
+        });
+    }
+    
+    if (mostrarSMA200 && GRAFICO_OHLC_DATA.length >= 200) {
+        const sma200Data = calcularSMAParaGrafico(GRAFICO_OHLC_DATA, 200);
+        series.push({
+            name: 'SMA 200',
+            type: 'line',
+            data: sma200Data
+        });
+    }
+    
+    // Configuración del gráfico de línea
+    const options = {
+        series: series,
+        chart: {
+            type: 'line',
+            height: 500,
+            toolbar: {
+                show: true,
+                tools: {
+                    download: true,
+                    zoom: true,
+                    zoomin: true,
+                    zoomout: true,
+                    pan: true,
+                    reset: true
+                }
+            },
+            animations: {
+                enabled: true
+            }
+        },
+        title: {
+            text: `${ACTIVE_TICKER} - Últimos ${periodo} días`,
+            align: 'left',
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: '#1e293b'
+            }
+        },
+        xaxis: {
+            type: 'datetime',
+            labels: {
+                style: {
+                    fontSize: '13px',
+                    fontWeight: 500
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Precio (USD)',
+                style: {
+                    fontSize: '15px',
+                    fontWeight: 600
+                }
+            },
+            labels: {
+                formatter: function (val) {
+                    return '$' + val.toFixed(2);
+                },
+                style: {
+                    fontSize: '13px',
+                    fontWeight: 500
+                }
+            }
+        },
+        stroke: {
+            width: [5, 3, 3, 3],
+            curve: 'smooth',
+            dashArray: [0, 0, 0, 0]
+        },
+        colors: ['#1e40af', '#059669', '#d97706', '#dc2626'],
+        markers: {
+            size: 0,
+            hover: {
+                size: 8,
+                sizeOffset: 4
+            }
+        },
+        legend: {
+            show: true,
+            position: 'top',
+            horizontalAlign: 'left',
+            fontSize: '14px',
+            fontWeight: 600,
+            markers: {
+                width: 16,
+                height: 16,
+                radius: 4
+            },
+            itemMargin: {
+                horizontal: 20
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        tooltip: {
+            enabled: true,
+            shared: false,
+            intersect: false,
+            followCursor: true,
+            x: {
+                show: true,
+                format: 'dd MMM yyyy',
+                formatter: function(value) {
+                    const fecha = new Date(value);
+                    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                    const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+                    const diaSemana = dias[fecha.getDay()];
+                    const dia = fecha.getDate();
+                    const mes = meses[fecha.getMonth()];
+                    const año = fecha.getFullYear();
+                    return `${diaSemana}, ${dia} ${mes} ${año}`;
+                }
+            },
+            y: {
+                formatter: function(value) {
+                    return '$' + value.toFixed(2);
+                },
+                title: {
+                    formatter: function(seriesName) {
+                        return seriesName + ': ';
+                    }
+                }
+            },
+            style: {
+                fontSize: '14px',
+                fontFamily: 'Segoe UI, sans-serif'
+            },
+            marker: {
+                show: true
+            }
+        },
+        grid: {
+            borderColor: '#cbd5e1',
+            strokeDashArray: 4,
+            xaxis: {
+                lines: {
+                    show: true
+                }
+            },
+            yaxis: {
+                lines: {
+                    show: true
+                }
+            },
+            padding: {
+                top: 20,
+                right: 30,
+                bottom: 10,
+                left: 10
+            }
+        }
+    };
+    
+    // Si ya existe un gráfico, destruirlo
+    if (GRAFICO_CHART) {
+        GRAFICO_CHART.destroy();
+    }
+    
+    // Crear nuevo gráfico
+    GRAFICO_CHART = new ApexCharts(document.getElementById('chartCandlestick'), options);
+    GRAFICO_CHART.render();
+    
+    log('✅ Gráfico renderizado correctamente', 'success');
+}
+
+async function actualizarGrafico() {
+    if (!ACTIVE_TICKER) {
+        alert('Primero analiza un ticker');
+        return;
+    }
+    
+    await renderizarGraficoCandlesticks();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    log('🚀 Plataforma v30 HÍBRIDA lista', 'success');
+    cargarDolares();
+    document.getElementById('btnAnalizar').addEventListener('click', analizar);
+});
+    </script>
 </body>
+</html>
