@@ -1,3 +1,5 @@
+<button onclick="capitaltrackLoginGoogle()">🔑 Iniciar sesión (Google)</button>
+<button onclick="capitaltrackCloudSaveNow()">☁️ Guardar en la nube</button>
 <!DOCTYPE html>
 <html lang="es">
 <!--
@@ -5541,5 +5543,59 @@ Verifica que el archivo tenga el formato correcto:
         }
 
     </script>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // CONFIGURACIÓN DE TU PROYECTO FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyCClH51RnDsaYxBxvcsut1ISnCvMTrinbQ",
+    authDomain: "capitaltrack-a3bc3.firebaseapp.com",
+    projectId: "capitaltrack-a3bc3",
+    storageBucket: "capitaltrack-a3bc3.firebasestorage.app",
+    messagingSenderId: "447015509800",
+    appId: "1:447015509800:web:14670c8b3163c20f817a1d"
+  };
+
+  // INICIALIZAR FIREBASE
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // LOGIN CON GOOGLE
+  window.capitaltrackLoginGoogle = async function () {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      alert("Sesión iniciada como: " + result.user.email);
+    } catch (err) {
+      alert("Error de login: " + err.message);
+    }
+  };
+
+  // GUARDADO DE PRUEBA EN LA NUBE
+  window.capitaltrackCloudSaveNow = async function () {
+    if (!auth.currentUser) {
+      alert("Primero iniciá sesión");
+      return;
+    }
+
+    const uid = auth.currentUser.uid;
+
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        email: auth.currentUser.email,
+        updated: new Date(),
+        test: "CapitalTrack conectado correctamente"
+      },
+      { merge: true }
+    );
+
+    alert("Datos guardados en Firestore ✔️");
+  };
+</script>
 </body>
 </html>
