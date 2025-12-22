@@ -1,5 +1,3 @@
-<button onclick="capitaltrackLoginGoogle()">🔑 Iniciar sesión (Google)</button>
-<button onclick="capitaltrackCloudSaveNow()">☁️ Guardar en la nube</button>
 <!DOCTYPE html>
 <html lang="es">
 <!--
@@ -1038,7 +1036,12 @@
         <div class="header">
             <h1>📊 Portfolio Manager Pro <span style="font-size: 14px; color: #6b7280; font-weight: 400;">v26 OBJETIVOS 🏦</span></h1>
             <div class="header-buttons">
-                <button class="btn btn-secondary" onclick="importFromExcel()" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">📊 Importar Excel</button>
+                
+            <button class="btn btn-secondary" onclick="capitaltrackLoginGoogle()" title="Iniciar sesión para guardar/cargar en la nube">🔑 Login Google</button>
+            <button class="btn btn-secondary" onclick="capitaltrackCloudLoad()" title="Trae tu portfolio guardado en Firestore y recarga la app">☁️ Cargar nube</button>
+            <button class="btn btn-primary" onclick="capitaltrackCloudSaveNow()" title="Guarda tu portfolio actual en Firestore">☁️ Guardar nube</button>
+            <span id="cloudStatus" style="align-self:center;font-size:12px;color:#a0a0a0;margin-left:6px;">Nube: desconectado</span>
+<button class="btn btn-secondary" onclick="importFromExcel()" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">📊 Importar Excel</button>
                 <button class="btn btn-secondary" onclick="exportData()">📥 Exportar JSON</button>
                 <button class="btn btn-secondary" onclick="importData()">📤 Importar JSON</button>
                 <button class="btn btn-primary" onclick="openTransactionModal()">+ Nueva Transacción</button>
@@ -5543,13 +5546,13 @@ Verifica que el archivo tenga el formato correcto:
         }
 
     </script>
-<!-- Firebase SDK -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  // Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-  // CONFIGURACIÓN DE TU PROYECTO FIREBASE
+  // Configuración de tu proyecto
   const firebaseConfig = {
     apiKey: "AIzaSyCClH51RnDsaYxBxvcsut1ISnCvMTrinbQ",
     authDomain: "capitaltrack-a3bc3.firebaseapp.com",
@@ -5559,43 +5562,150 @@ Verifica que el archivo tenga el formato correcto:
     appId: "1:447015509800:web:14670c8b3163c20f817a1d"
   };
 
-  // INICIALIZAR FIREBASE
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Para pruebas
+  window.firebaseAuth = auth;
+  window.firebaseDB = db;
+
+  console.log("🔥 Firebase conectado correctamente");
+</script>
+<!-- FIREBASE (Google Login + Firestore Cloud Save/Load) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ✅ Tu configuración (tal cual Firebase)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCClH51RnDsaYxBxvcsut1ISnCvMTrinbQ",
+    authDomain: "capitaltrack-a3bc3.firebaseapp.com",
+    projectId: "capitaltrack-a3bc3",
+    storageBucket: "capitaltrack-a3bc3.firebasestorage.app",
+    messagingSenderId: "447015509800",
+    appId: "1:447015509800:web:14670c8b3163c20f817a1d"
+  };
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
-  // LOGIN CON GOOGLE
+  function setCloudStatus(msg) {
+    const el = document.getElementById("cloudStatus");
+    if (el) el.textContent = msg;
+  }
+
+  async function requireUser() {
+    const u = auth.currentUser;
+    if (!u) {
+      alert("Primero hacé Login Google para usar la nube.");
+      throw new Error("Not authenticated");
+    }
+    return u;
+  }
+
+  function getLocalState() {
+    const keys = ["transactions","customRatios","objetivos","cclHistoryCache","apiCallsCount","apiCallsDate"];
+    const out = {};
+    for (const k of keys) {
+      const v = localStorage.getItem(k);
+      if (v !== null) out[k] = v; // guardo como string (JSON o texto), exacto como está
+    }
+    return out;
+  }
+
+  function setLocalState(state) {
+    if (!state || typeof state !== "object") return;
+    for (const [k,v] of Object.entries(state)) {
+      if (typeof v === "string") localStorage.setItem(k, v);
+    }
+  }
+
+  // 🔑 Login Google (toggle: si estás logueado, hace logout)
   window.capitaltrackLoginGoogle = async function () {
     try {
-      const result = await signInWithPopup(auth, provider);
-      alert("Sesión iniciada como: " + result.user.email);
-    } catch (err) {
-      alert("Error de login: " + err.message);
+      if (auth.currentUser) {
+        await signOut(auth);
+        alert("Sesión cerrada.");
+        return;
+      }
+      await signInWithPopup(auth, provider);
+      alert("Login OK.");
+    } catch (e) {
+      alert("Error login: " + (e?.message || e));
     }
   };
 
-  // GUARDADO DE PRUEBA EN LA NUBE
+  // ☁️ Guardar portfolio a Firestore
   window.capitaltrackCloudSaveNow = async function () {
-    if (!auth.currentUser) {
-      alert("Primero iniciá sesión");
-      return;
+    try {
+      const user = await requireUser();
+      const payload = {
+        state: getLocalState(),
+        updatedAt: serverTimestamp(),
+        updatedAtClient: new Date().toISOString(),
+        app: "CapitalTrack",
+        version: "gpt-v1-fix-firebase"
+      };
+
+      // Documento por usuario (simple y claro)
+      const ref = doc(db, "users", user.uid, "capitaltrack", "portfolio");
+      await setDoc(ref, payload, { merge: true });
+
+      alert("✅ Guardado en la nube OK.");
+    } catch (e) {
+      alert("❌ Error al guardar: " + (e?.message || e));
     }
-
-    const uid = auth.currentUser.uid;
-
-    await setDoc(
-      doc(db, "users", uid),
-      {
-        email: auth.currentUser.email,
-        updated: new Date(),
-        test: "CapitalTrack conectado correctamente"
-      },
-      { merge: true }
-    );
-
-    alert("Datos guardados en Firestore ✔️");
   };
+
+  // ☁️ Cargar portfolio desde Firestore (sobrescribe localStorage y recarga)
+  window.capitaltrackCloudLoad = async function () {
+    try {
+      const user = await requireUser();
+      const ref = doc(db, "users", user.uid, "capitaltrack", "portfolio");
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) {
+        alert("No hay datos en la nube todavía. Primero guardá una vez.");
+        return;
+      }
+
+      const data = snap.data();
+      if (!data?.state) {
+        alert("El documento existe pero no tiene 'state'.");
+        return;
+      }
+
+      setLocalState(data.state);
+      alert("✅ Cargado desde la nube. Se recargará la página.");
+      location.reload();
+    } catch (e) {
+      alert("❌ Error al cargar: " + (e?.message || e));
+    }
+  };
+
+  // Estado en la UI
+  onAuthStateChanged(auth, (user) => {
+    if (user) setCloudStatus("Nube: conectado (" + (user.email || user.uid) + ")");
+    else setCloudStatus("Nube: desconectado");
+  });
 </script>
+
 </body>
 </html>
