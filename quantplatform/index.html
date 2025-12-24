@@ -342,6 +342,71 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
+<!-- 🔒 AUTH GATE (QuantPlatform) -->
+<style>
+  #authGate{
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 600px at 20% 10%, rgba(80,140,255,.25), rgba(0,0,0,.85));
+    backdrop-filter: blur(6px);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+  .authCard{
+    width: min(520px, 92vw);
+    border-radius: 18px;
+    padding: 22px 22px 18px;
+    background: rgba(18, 24, 40, .92);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 10px 40px rgba(0,0,0,.55);
+    color: #e9eefc;
+  }
+  .authTitle{ font-size: 22px; font-weight: 700; margin: 0 0 8px; }
+  .authSub{ opacity: .85; margin: 0 0 18px; line-height: 1.35; }
+  .authMsg{ margin: 10px 0 0; opacity: .9; font-size: 13px; }
+  .authBtns{ display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .authBtn{
+    cursor: pointer;
+    border: 0; border-radius: 12px;
+    padding: 12px 14px; font-weight: 700;
+    background: linear-gradient(180deg, rgba(110,190,255,.95), rgba(70,130,255,.95));
+    color: #071225;
+  }
+  .authBtn2{
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 12px;
+    padding: 12px 14px; font-weight: 700;
+    background: rgba(255,255,255,.06);
+    color: #e9eefc;
+  }
+  .authSmall{ margin-top: 14px; font-size: 12px; opacity: .8; }
+  .authRow{ display:flex; justify-content: space-between; align-items:center; gap: 12px; }
+  .authWho{ font-size: 12px; opacity: .8; }
+</style>
+
+<div id="authGate" style="display:none">
+  <div class="authCard">
+    <div class="authRow">
+      <div>
+        <p class="authTitle">🔒 QuantPlatform – Acceso protegido</p>
+        <p class="authSub">Iniciá sesión con Google para abrir la plataforma.</p>
+      </div>
+      <div class="authWho" id="authWho"></div>
+    </div>
+
+    <div class="authBtns">
+      <button id="btnLoginGoogle" class="authBtn">Iniciar sesión (Google)</button>
+      <button id="btnLogout" class="authBtn2">Cerrar sesión</button>
+    </div>
+
+    <p id="authMsg" class="authMsg"></p>
+    <p class="authSmall">Si te aparece <b>auth/unauthorized-domain</b>, hay que autorizar el dominio en Firebase → Authentication → Configuración → Dominios autorizados.</p>
+  </div>
+</div>
+<!-- /AUTH GATE -->
+
+<div id="appRoot" style="display:none">
+
     <div class="header">
         <h1>📊 PLATAFORMA DE ANÁLISIS DE CEDEARs</h1>
         <span class="badge-live">● v30 HÍBRIDA - Yahoo Finance + Alpha Vantage</span>
@@ -3221,5 +3286,93 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnAnalizar').addEventListener('click', analizar);
 });
     </script>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyCClH51RnDsaYxBxvcsut1ISnCvMTrinbQ",
+  authDomain: "capitaltrack-a3bc3.firebaseapp.com",
+  projectId: "capitaltrack-a3bc3",
+  storageBucket: "capitaltrack-a3bc3.firebasestorage.app",
+  messagingSenderId: "447015509800",
+  appId: "1:447015509800:web:14670c8b3163c20f817a1d"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // ✅ Permití SOLO estos correos (cambiá / agregá los tuyos)
+  const ALLOWED_EMAILS = [
+    "pantanodemariposas@gmail.com"
+    // "tu_otro_mail@gmail.com"
+  ];
+
+  const gate = document.getElementById("authGate");
+  const appRoot = document.getElementById("appRoot");
+  const btnLogin = document.getElementById("btnLoginGoogle");
+  const btnLogout = document.getElementById("btnLogout");
+
+  function showGate(message) {
+    if (message) {
+      const msg = document.getElementById("authMsg");
+      if (msg) msg.textContent = message;
+    }
+    gate.style.display = "flex";
+    appRoot.style.display = "none";
+  }
+
+  function showApp(userEmail) {
+    gate.style.display = "none";
+    appRoot.style.display = "block";
+    const who = document.getElementById("authWho");
+    if (who) who.textContent = userEmail || "";
+  }
+
+  btnLogin?.addEventListener("click", async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const email = result?.user?.email || "";
+      if (!ALLOWED_EMAILS.includes(email)) {
+        await signOut(auth);
+        showGate("Tu cuenta no está autorizada para esta plataforma.");
+      }
+    } catch (err) {
+      showGate("Error login: " + (err?.message || err));
+    }
+  });
+
+  btnLogout?.addEventListener("click", async () => {
+    await signOut(auth);
+    showGate("Sesión cerrada.");
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      showGate("Iniciá sesión para acceder.");
+      return;
+    }
+    const email = user.email || "";
+    if (!ALLOWED_EMAILS.includes(email)) {
+      await signOut(auth);
+      showGate("Tu cuenta no está autorizada para esta plataforma.");
+      return;
+    }
+    showApp(email);
+  });
+
+  // Ocultar app hasta validar auth
+  showGate("Verificando sesión...");
+</script>
+
 </body>
 </html>
