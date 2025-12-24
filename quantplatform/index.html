@@ -3310,6 +3310,117 @@ window.addEventListener('DOMContentLoaded', () => {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
+// ===============================
+// 🔒 BLOQUEO TOTAL HASTA LOGIN (QuantPlatform)
+// ===============================
+function qpShowLoginOverlay() {
+  if (document.getElementById("qpLoginOverlay")) return;
+
+  const overlay = document.createElement("div");
+  overlay.id = "qpLoginOverlay";
+  overlay.style.position = "fixed";
+  overlay.style.inset = "0";
+  overlay.style.zIndex = "999999";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.background = "rgba(0,0,0,0.75)";
+  overlay.style.backdropFilter = "blur(4px)";
+
+  overlay.innerHTML = `
+    <div style="
+      width: min(520px, 92vw);
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 20px;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    ">
+      <div style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">
+        🔐 Acceso protegido (QuantPlatform)
+      </div>
+      <div style="opacity: .9; line-height: 1.35; margin-bottom: 14px;">
+        Iniciá sesión con Google para acceder.
+      </div>
+
+      <button id="qpBtnLoginGoogle" style="
+        width: 100%;
+        border: 0;
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: #2563eb;
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 15px;
+      ">Iniciar sesión con Google</button>
+
+      <div id="qpLoginMsg" style="margin-top: 10px; font-size: 13px; opacity: .85;"></div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("qpBtnLoginGoogle").onclick = async () => {
+    const msg = document.getElementById("qpLoginMsg");
+    msg.textContent = "Abriendo login...";
+    try {
+      const result = await signInWithPopup(auth, provider);
+
+      // ✅ Si usás lista blanca de mails (ALLOWED_EMAILS), la aplicamos acá:
+      const email = (result?.user?.email || "").toLowerCase();
+      if (Array.isArray(ALLOWED_EMAILS) && ALLOWED_EMAILS.length > 0) {
+        const ok = ALLOWED_EMAILS.map(x => String(x).toLowerCase()).includes(email);
+        if (!ok) {
+          await signOut(auth);
+          msg.textContent = "❌ Este correo no está autorizado.";
+          alert("Este correo no está autorizado: " + email);
+          return;
+        }
+      }
+
+      msg.textContent = "✅ Sesión iniciada. Cargando...";
+    } catch (err) {
+      console.error("Error login:", err);
+      msg.textContent = "❌ Error de login: " + (err?.message || err);
+      alert("Error login: " + (err?.message || err));
+    }
+  };
+}
+
+function qpHideLoginOverlay() {
+  const overlay = document.getElementById("qpLoginOverlay");
+  if (overlay) overlay.remove();
+}
+
+// Oculta todo hasta decidir si hay sesión
+document.documentElement.style.visibility = "hidden";
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Si hay lista blanca, validá también al refrescar:
+    const email = (user?.email || "").toLowerCase();
+    if (Array.isArray(ALLOWED_EMAILS) && ALLOWED_EMAILS.length > 0) {
+      const ok = ALLOWED_EMAILS.map(x => String(x).toLowerCase()).includes(email);
+      if (!ok) {
+        signOut(auth);
+        document.documentElement.style.visibility = "visible";
+        qpShowLoginOverlay();
+        return;
+      }
+    }
+
+    document.documentElement.style.visibility = "visible";
+    qpHideLoginOverlay();
+    console.log("✅ QuantPlatform: logueado:", user.email);
+  } else {
+    document.documentElement.style.visibility = "visible";
+    qpShowLoginOverlay();
+    console.log("🔒 QuantPlatform: requiere login");
+  }
+});
 
   // ✅ Permití SOLO estos correos (cambiá / agregá los tuyos)
   const ALLOWED_EMAILS = [
