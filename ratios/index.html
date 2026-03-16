@@ -169,9 +169,8 @@ const URL_PUBLICADA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCfbi6zp
 const PROXIES = [
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-u => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(u)}`,
-u => `https://yacdn.org/proxy/${encodeURIComponent(u)}`
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+];
 
 let allData = [];
 let arbData = [];
