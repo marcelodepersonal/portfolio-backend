@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSI Monitor · QuantAlpha</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#16161f;
+  --border:rgba(255,255,255,0.07);
+  --text:#f0efe8;--text2:#8a8a9a;--text3:#555568;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --gold:#c9a84c;--teal:#2dd4bf;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-weight:300;min-height:100vh;}
+.header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.header-left{display:flex;align-items:center;gap:16px;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--text2);text-decoration:none;font-size:13px;font-family:var(--mono);letter-spacing:0.05em;padding:6px 12px;border:1px solid var(--border);border-radius:8px;transition:all 0.2s;}
+.back-btn:hover{border-color:var(--gold);color:var(--gold);}
+.title{font-size:1.1rem;font-weight:500;}
+.title span{color:var(--teal);}
+.header-right{display:flex;align-items:center;gap:12px;}
+.last-update{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.btn-refresh{display:flex;align-items:center;gap:6px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);border-radius:8px;padding:7px 14px;color:var(--teal);font-size:12px;font-family:var(--mono);cursor:pointer;transition:all 0.2s;}
+.btn-refresh:hover{background:rgba(45,212,191,0.2);}
+.tabs{display:flex;padding:0 2rem;background:var(--bg2);border-bottom:1px solid var(--border);}
+.tab{padding:12px 24px;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:500;}
+.content{padding:1.5rem 2rem;max-width:1400px;margin:0 auto;}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;}
+.stat-label{font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
+.stat-value{font-size:1.6rem;font-weight:500;}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.legend{display:flex;gap:20px;align-items:center;margin-bottom:1.5rem;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+.sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.sector-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.sector-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sector-name{font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);}
+.sector-avg{font-family:var(--mono);font-size:13px;font-weight:500;}
+.ticker-list{padding:4px 0;}
+.ticker-row{display:flex;align-items:center;gap:8px;padding:6px 14px;transition:background 0.15s;}
+.ticker-row:hover{background:rgba(255,255,255,0.02);}
+.t-name{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);min-width:55px;}
+.t-bar{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.t-fill{height:100%;border-radius:2px;transition:width 0.5s ease;}
+.t-rsi{font-family:var(--mono);font-size:12px;font-weight:500;min-width:38px;text-align:right;}
+.t-pct{font-family:var(--mono);font-size:11px;min-width:60px;text-align:right;}
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem;gap:16px;color:var(--text2);}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-state{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:2rem;text-align:center;color:var(--red);font-size:14px;line-height:1.8;}
+@media(max-width:768px){
+  .stats-bar{grid-template-columns:repeat(2,1fr);}
+  .sector-grid{grid-template-columns:1fr;}
+  .content,.header,.tabs{padding-left:1rem;padding-right:1rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <a href="/" class="back-btn">← Inicio</a>
+    <div class="title">RSI Monitor · <span>USA & Mundo</span></div>
+  </div>
+  <div class="header-right">
+    <span class="last-update" id="lastUpdate">—</span>
+    <button class="btn-refresh" id="btnRefresh" onclick="cargarDatos()">↻ Actualizar</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('usa',this)">🇺🇸 USA</div>
+  <div class="tab" onclick="switchTab('mundo',this)">🌎 Resto del Mundo</div>
+</div>
+
+<div class="content">
+  <div class="legend">
+    <span style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-right:4px;">RSI:</span>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div> &lt;30 Sobrevendido</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--teal)"></div> 30–50 Neutro bajo</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--yellow)"></div> 50–70 Neutro alto</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div> &gt;70 Sobrecomprado</div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">RSI Promedio</div>
+      <div class="stat-value" id="statAvg">—</div>
+      <div class="stat-sub">mercado actual</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sobrevendidos</div>
+      <div class="stat-value" style="color:var(--green)" id="statOversold">—</div>
+      <div class="stat-sub">RSI &lt; 30 · oportunidad</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sobrecomprados</div>
+      <div class="stat-value" style="color:var(--red)" id="statOverbought">—</div>
+      <div class="stat-sub">RSI &gt; 70 · precaución</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Instrumentos</div>
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-sub">analizados</div>
+    </div>
+  </div>
+
+  <div id="mainContent">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <span>Cargando datos de RSI desde Google Sheets...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONFIGURACIÓN — IDs exactos de cada hoja
+// ══════════════════════════════════════════════════════════════
+const SHEET_ID  = '18vqRDQ1DXSZQ_PB_OH5pCCBirvxMRS7_b06WlN86Gb8';
+const GID_USA   = '1911363191';
+const GID_MUNDO = '10817923';
+
+// ── ESTRUCTURA FIJA DE SECTORES ───────────────────────────────
+// Basada en imágenes reales del Sheet
+// Cada sector define: fila de inicio de datos, columna ticker, rsi, pct
+// Las posiciones son en base 0 (col A=0, B=1, C=2...)
+// Estructura: cada 4 cols → [vacía, TICKER, RSI, %]
+// Bloques superiores (fila 2 = nombre, fila 4 = header, fila 5+ = datos)
+// Bloques inferiores (nombre en otra fila, datos debajo)
+
+const SECTORES_USA = [
+  // Bloque superior — fila 2 contiene nombre, datos desde fila 5
+  { nombre: "ETF's",               tickerCol: 1,  rsiCol: 2,  pctCol: 3,  dataStart: 4 },
+  { nombre: "Technology",          tickerCol: 5,  rsiCol: 6,  pctCol: 7,  dataStart: 4 },
+  { nombre: "Financial",           tickerCol: 9,  rsiCol: 10, pctCol: 11, dataStart: 4 },
+  { nombre: "Consumer Cyclical",   tickerCol: 13, rsiCol: 14, pctCol: 15, dataStart: 4 },
+  { nombre: "Industrials",         tickerCol: 17, rsiCol: 18, pctCol: 19, dataStart: 4 },
+  // Bloques inferiores — nombre en fila 15/25/18/19/23, datos debajo
+  { nombre: "Energy",              tickerCol: 1,  rsiCol: 2,  pctCol: 3,  dataStart: 16 },
+  { nombre: "Basic Materials",     tickerCol: 1,  rsiCol: 2,  pctCol: 3,  dataStart: 25 },
+  { nombre: "Healthcare",          tickerCol: 17, rsiCol: 18, pctCol: 19, dataStart: 19 },
+  { nombre: "Consumer Defensive",  tickerCol: 13, rsiCol: 14, pctCol: 15, dataStart: 19 },
+  { nombre: "Communication Svc",   tickerCol: 9,  rsiCol: 10, pctCol: 11, dataStart: 23 },
+];
+
+const SECTORES_MUNDO = [
+  { nombre: "China",       tickerCol: 1,  rsiCol: 2,  pctCol: 3,  dataStart: 4 },
+  { nombre: "Brasil",      tickerCol: 5,  rsiCol: 6,  pctCol: 7,  dataStart: 4 },
+  { nombre: "Europa",      tickerCol: 9,  rsiCol: 10, pctCol: 11, dataStart: 4 },
+  { nombre: "Argentina",   tickerCol: 13, rsiCol: 14, pctCol: 15, dataStart: 4 },
+  { nombre: "México",      tickerCol: 1,  rsiCol: 2,  pctCol: 3,  dataStart: 12 },
+  { nombre: "África",      tickerCol: 1,  rsiCol: 2,  pctCol: 3,  dataStart: 21 },
+  { nombre: "Canadá",      tickerCol: 1,  rsiCol: 2,  pctCol: 3,  dataStart: 28 },
+  { nombre: "Reino Unido", tickerCol: 5,  rsiCol: 6,  pctCol: 7,  dataStart: 19 },
+  { nombre: "Asia",        tickerCol: 9,  rsiCol: 10, pctCol: 11, dataStart: 25 },
+];
+
+// ── PROXIES CORS ──────────────────────────────────────────────
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+];
+
+let dataUSA   = {};
+let dataMundo = {};
+let tabActual = 'usa';
+let rawUSA    = [];
+let rawMundo  = [];
+
+// ── FETCH ─────────────────────────────────────────────────────
+async function fetchCSV(gid) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+  for (const proxy of PROXIES) {
+    try {
+      const r = await fetch(proxy(url), {signal: AbortSignal.timeout(10000)});
+      if (r.ok) {
+        const text = await r.text();
+        if (text && text.length > 100) return text;
+      }
+    } catch(e) { continue; }
+  }
+  throw new Error('No se pudo conectar con Google Sheets');
+}
+
+// ── PARSEAR CSV → ARRAY 2D ────────────────────────────────────
+function parseCSV(text) {
+  return text.split('\n').map(line => {
+    const cells = [];
+    let inQuote = false, cell = '';
+    for (const ch of line) {
+      if (ch === '"') { inQuote = !inQuote; }
+      else if (ch === ',' && !inQuote) { cells.push(cell.trim()); cell = ''; }
+      else { cell += ch; }
+    }
+    cells.push(cell.trim());
+    return cells;
+  });
+}
+
+// ── EXTRAER SECTOR desde array 2D ────────────────────────────
+function extraerSector(rows, sector) {
+  const items = [];
+  const maxRow = Math.min(rows.length, sector.dataStart + 60);
+
+  for (let r = sector.dataStart; r < maxRow; r++) {
+    const row = rows[r];
+    if (!row) continue;
+
+    const ticker = (row[sector.tickerCol] || '').replace(/"/g,'').trim();
+    const rsiRaw = (row[sector.rsiCol]   || '').replace(/"/g,'').trim();
+    const pctRaw = (row[sector.pctCol]   || '').replace(/"/g,'').trim();
+
+    // Validar ticker: solo letras y puntos, no vacío, no header
+    if (!ticker || !/^[A-Za-z\.]{1,10}$/.test(ticker)) continue;
+    if (['TYCKER','TICKER','RSI','%','N/A'].includes(ticker.toUpperCase())) continue;
+
+    const rsi = parseFloat(rsiRaw);
+    const pct = parseFloat(pctRaw);
+
+    if (isNaN(rsi) || rsi <= 0 || rsi > 100) continue;
+
+    items.push({
+      ticker,
+      rsi: parseFloat(rsi.toFixed(1)),
+      pct: isNaN(pct) ? 0 : pct
+    });
+  }
+  return items;
+}
+
+// ── PROCESAR TODOS LOS SECTORES ───────────────────────────────
+function procesarSectores(rows, definicion) {
+  const grupos = {};
+  definicion.forEach(sec => {
+    const items = extraerSector(rows, sec);
+    if (items.length > 0) grupos[sec.nombre] = items;
+  });
+  return grupos;
+}
+
+// ── COLORES RSI ───────────────────────────────────────────────
+function rsiColor(rsi) {
+  if (rsi < 30) return 'var(--green)';
+  if (rsi > 70) return 'var(--red)';
+  if (rsi < 50) return 'var(--teal)';
+  return 'var(--yellow)';
+}
+
+// ── STATS ─────────────────────────────────────────────────────
+function calcStats(grupos) {
+  const all = Object.values(grupos).flat();
+  if (!all.length) return { avg: '—', oversold: 0, overbought: 0, total: 0 };
+  const avg = all.reduce((s,i) => s + i.rsi, 0) / all.length;
+  return {
+    avg: avg.toFixed(1),
+    oversold:  all.filter(i => i.rsi < 30).length,
+    overbought: all.filter(i => i.rsi > 70).length,
+    total: all.length
+  };
+}
+
+// ── RENDERIZAR ────────────────────────────────────────────────
+function renderGrupos(grupos) {
+  const stats = calcStats(grupos);
+  const avg = parseFloat(stats.avg);
+
+  document.getElementById('statAvg').textContent = stats.avg;
+  document.getElementById('statAvg').style.color = isNaN(avg) ? 'var(--text)' : rsiColor(avg);
+  document.getElementById('statOversold').textContent  = stats.oversold;
+  document.getElementById('statOverbought').textContent = stats.overbought;
+  document.getElementById('statTotal').textContent = stats.total;
+
+  const cards = Object.entries(grupos).map(([nombre, items]) => {
+    const avg = items.reduce((s,i) => s + i.rsi, 0) / items.length;
+    const color = rsiColor(avg);
+
+    const filas = items.map(item => {
+      const barW = Math.min(100, Math.max(2, item.rsi));
+      const col  = rsiColor(item.rsi);
+      const pct  = item.pct;
+      const pctStr = pct === 0
+        ? '<span style="color:var(--text3)">—</span>'
+        : pct > 0
+          ? `<span style="color:var(--green)">+${(pct*100).toFixed(2)}%</span>`
+          : `<span style="color:var(--red)">${(pct*100).toFixed(2)}%</span>`;
+
+      return `
+        <div class="ticker-row">
+          <span class="t-name">${item.ticker}</span>
+          <div class="t-bar"><div class="t-fill" style="width:${barW}%;background:${col}"></div></div>
+          <span class="t-rsi" style="color:${col}">${item.rsi}</span>
+          <span class="t-pct">${pctStr}</span>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="sector-card">
+        <div class="sector-header">
+          <span class="sector-name">${nombre}</span>
+          <span class="sector-avg" style="color:${color}">RSI ${avg.toFixed(1)}</span>
+        </div>
+        <div class="ticker-list">${filas}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('mainContent').innerHTML =
+    `<div class="sector-grid">${cards || '<div class="error-state">Sin datos</div>'}</div>`;
+}
+
+// ── CARGAR ────────────────────────────────────────────────────
+async function cargarDatos() {
+  const btn = document.getElementById('btnRefresh');
+  btn.textContent = '↻ Cargando...';
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <span>Obteniendo datos de Google Sheets...</span>
+    </div>`;
+
+  try {
+    const gid = tabActual === 'usa' ? GID_USA : GID_MUNDO;
+    const csv = await fetchCSV(gid);
+    const rows = parseCSV(csv);
+    const def  = tabActual === 'usa' ? SECTORES_USA : SECTORES_MUNDO;
+    const grupos = procesarSectores(rows, def);
+
+    if (tabActual === 'usa') { dataUSA = grupos; rawUSA = rows; }
+    else { dataMundo = grupos; rawMundo = rows; }
+
+    if (Object.keys(grupos).length === 0)
+      throw new Error('No se encontraron datos. Verificá que el Sheet esté publicado en la web.');
+
+    renderGrupos(grupos);
+
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent =
+      `Actualizado ${now.toLocaleTimeString('es-AR')}`;
+
+  } catch(e) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="error-state">
+        ❌ ${e.message}<br><br>
+        <small>Archivo → Publicar en la web → CSV → Publicar</small>
+      </div>`;
+  }
+
+  btn.textContent = '↻ Actualizar';
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'auto';
+}
+
+function switchTab(tab, el) {
+  tabActual = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  const cache = tab === 'usa' ? dataUSA : dataMundo;
+  if (Object.keys(cache).length) renderGrupos(cache);
+  else cargarDatos();
+}
+
+cargarDatos();
+</script>
+</body>
+</html>
