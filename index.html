@@ -273,6 +273,27 @@ footer { border-top: 1px solid var(--border); padding: 2rem 0; display: flex; ju
         </div>
       </a>
 
+      <a class="tool-card card-purple" href="ratios/index.html" id="linkRatios">
+        <span class="card-number">05</span>
+        <div class="card-header">
+          <div class="card-icon icon-purple">📐</div>
+          <span class="card-tag tag-purple">Ratios · S&P500</span>
+        </div>
+        <div class="card-name">Ratios <em>Financieros</em></div>
+        <div class="card-version">30 empresas · S&P500 High Quality</div>
+        <p class="card-desc">Análisis fundamental de las 30 mejores empresas del S&P500. Ratios, márgenes, fair value y desarbitraje CEDEAR en tiempo real.</p>
+        <div class="card-features">
+          <span class="feature-pill">30 empresas</span>
+          <span class="feature-pill">Fair Value</span>
+          <span class="feature-pill">Márgenes</span>
+          <span class="feature-pill">Desarbitraje</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><span class="st-dot st-live"></span><span class="st-live-text">EN VIVO</span></div>
+          <span class="card-arrow">↗</span>
+        </div>
+      </a>
+
     </div>
 
     <div class="bottom-grid">
@@ -284,7 +305,7 @@ footer { border-top: 1px solid var(--border); padding: 2rem 0; display: flex; ju
         <div class="panel-title">⚙ Estado del sistema</div>
         <div class="info-row"><span class="info-label">Hosting</span><span class="info-value ok">Vercel ✓</span></div>
         <div class="info-row"><span class="info-label">Base de datos</span><span class="info-value ok">Firebase ✓</span></div>
-        <div class="info-row"><span class="info-label">Herramientas activas</span><span class="info-value">4 / 4</span></div>
+        <div class="info-row"><span class="info-label">Herramientas activas</span><span class="info-value">5 / 5</span></div>
         <div class="info-row"><span class="info-label">Sesión</span><span class="info-value ok" id="sessionStatus">Activa ✓</span></div>
         <div class="info-row"><span class="info-label">Versión plataforma</span><span class="info-value">v1.0</span></div>
       </div>
@@ -384,6 +405,7 @@ footer { border-top: 1px solid var(--border); padding: 2rem 0; display: flex; ju
       document.getElementById('linkMarce').addEventListener('click', () => registrarApertura('MARCE Asistente', user.uid));
       document.getElementById('linkQuant').addEventListener('click', () => registrarApertura('QuantPlatform', user.uid));
       document.getElementById('linkRSI').addEventListener('click', () => registrarApertura('RSI Monitor', user.uid));
+      document.getElementById('linkRatios').addEventListener('click', () => registrarApertura('Ratios Financieros', user.uid));
 
     } else {
       // Mostrar login
