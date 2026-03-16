@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ratios Financieros · QuantAlpha</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#16161f;
+  --border:rgba(255,255,255,0.07);
+  --text:#f0efe8;--text2:#8a8a9a;--text3:#555568;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --gold:#c9a84c;--teal:#2dd4bf;--purple:#a78bfa;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-weight:300;min-height:100vh;}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.header-left{display:flex;align-items:center;gap:16px;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--text2);text-decoration:none;font-size:13px;font-family:var(--mono);letter-spacing:0.05em;padding:6px 12px;border:1px solid var(--border);border-radius:8px;transition:all 0.2s;}
+.back-btn:hover{border-color:var(--gold);color:var(--gold);}
+.title{font-size:1.1rem;font-weight:500;}
+.title span{color:var(--purple);}
+.header-right{display:flex;align-items:center;gap:12px;}
+.last-update{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.btn-refresh{display:flex;align-items:center;gap:6px;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:7px 14px;color:var(--purple);font-size:12px;font-family:var(--mono);cursor:pointer;transition:all 0.2s;}
+.btn-refresh:hover{background:rgba(167,139,250,0.2);}
+
+/* TABS */
+.tabs{display:flex;padding:0 2rem;background:var(--bg2);border-bottom:1px solid var(--border);}
+.tab{padding:12px 24px;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.tab.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:500;}
+
+/* CONTENT */
+.content{padding:1.5rem 2rem;max-width:1600px;margin:0 auto;}
+
+/* TABLA PRINCIPAL */
+.table-wrap{overflow-x:auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead tr{background:var(--bg3);}
+th{padding:10px 12px;text-align:right;font-size:10px;font-family:var(--mono);letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg3);}
+th:first-child,th:nth-child(2),th:nth-child(3){text-align:left;}
+td{padding:9px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.03);white-space:nowrap;vertical-align:middle;}
+td:first-child,td:nth-child(2),td:nth-child(3){text-align:left;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+tr.expanded td{background:rgba(167,139,250,0.04);}
+
+/* TICKER BADGE */
+.ticker-badge{font-family:var(--mono);font-weight:500;font-size:13px;color:var(--purple);cursor:pointer;}
+.ticker-badge:hover{text-decoration:underline;}
+.sector-badge{font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.06);color:var(--text2);}
+
+/* RSI COLOR */
+.rsi-buy{color:var(--green);}
+.rsi-sell{color:var(--red);}
+.rsi-neu{color:var(--text2);}
+
+/* POSITIVE / NEGATIVE */
+.pos{color:var(--green);}
+.neg{color:var(--red);}
+.neu{color:var(--text2);}
+
+/* EXPAND ROW */
+.expand-row{display:none;}
+.expand-row.open{display:table-row;}
+.expand-cell{padding:16px 20px;background:rgba(167,139,250,0.04);border-bottom:1px solid var(--border);}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.detail-group{background:var(--bg3);border-radius:8px;padding:12px 14px;}
+.detail-group-title{font-size:10px;font-family:var(--mono);letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12px;}
+.detail-label{color:var(--text2);}
+.detail-value{font-family:var(--mono);font-size:11px;font-weight:500;}
+
+/* DESARBITRAJE */
+.section-title{font-size:14px;font-weight:500;margin:2rem 0 1rem;display:flex;align-items:center;gap:8px;}
+.section-title span{color:var(--gold);}
+.arb-table-wrap{overflow-x:auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;}
+
+/* LOADING / ERROR */
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem;gap:16px;color:var(--text2);}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-state{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:2rem;text-align:center;color:var(--red);font-size:14px;line-height:1.8;}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.5rem;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:0.85rem 1rem;}
+.stat-label{font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}
+.stat-value{font-size:1.3rem;font-weight:500;}
+
+@media(max-width:768px){
+  .stats-bar{grid-template-columns:repeat(2,1fr);}
+  .content,.header,.tabs{padding-left:1rem;padding-right:1rem;}
+  .detail-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <a href="/" class="back-btn">← Inicio</a>
+    <div class="title">Ratios <span>Financieros</span> · S&P500</div>
+  </div>
+  <div class="header-right">
+    <span class="last-update" id="lastUpdate">—</span>
+    <button class="btn-refresh" onclick="cargarDatos()">↻ Actualizar</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('ratios',this)">📊 Ratios & Métricas</div>
+  <div class="tab" onclick="switchTab('arb',this)">⚡ Desarbitraje CEDEAR</div>
+</div>
+
+<div class="content">
+
+  <div id="tabRatios">
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Empresas</div>
+        <div class="stat-value" id="statEmpresas">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">RSI &lt; 35</div>
+        <div class="stat-value pos" id="statBuy">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">RSI &gt; 65</div>
+        <div class="stat-value neg" id="statSell">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Con Dividendo</div>
+        <div class="stat-value" style="color:var(--gold)" id="statDiv">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Subvaluadas</div>
+        <div class="stat-value" style="color:var(--teal)" id="statSub">—</div>
+      </div>
+    </div>
+
+    <div id="mainContent">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <span>Cargando ratios financieros...</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabArb" style="display:none;">
+    <div id="arbContent">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <span>Cargando datos de desarbitraje...</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SHEET_ID = '12y5qTvgG9EbBvl6CJre3gTI7IZ3IbxHH7tPoK2k2G-Y';
+const GID_RATIOS = '1348274538';
+
+const PROXIES = [
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+];
+
+let allData = [];
+let arbData = [];
+let tabActual = 'ratios';
+
+async function fetchCSV(gid) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+  for (const p of PROXIES) {
+    try {
+      const r = await fetch(p(url), {signal: AbortSignal.timeout(12000)});
+      if (r.ok) { const t = await r.text(); if (t.length > 100) return t; }
+    } catch(e) { continue; }
+  }
+  throw new Error('No se pudo conectar con Google Sheets');
+}
+
+function parseCSV(text) {
+  return text.split('\n').map(line => {
+    const cells = []; let inQ = false, cell = '';
+    for (const ch of line) {
+      if (ch === '"') inQ = !inQ;
+      else if (ch === ',' && !inQ) { cells.push(cell.trim()); cell = ''; }
+      else cell += ch;
+    }
+    cells.push(cell.trim());
+    return cells;
+  });
+}
+
+function limpiar(v) {
+  if (!v) return null;
+  const s = String(v).replace(/"/g,'').replace(/[$%,\s]/g,'').trim();
+  if (s === '' || s === '#N/A' || s === '#DIV/0!' || s === '#REF!' || s === 'N/A') return null;
+  return s;
+}
+
+function num(v, decimals=2) {
+  const n = parseFloat(limpiar(v));
+  return isNaN(n) ? null : parseFloat(n.toFixed(decimals));
+}
+
+function fmt(v, suffix='', decimals=2) {
+  if (v === null || v === undefined) return '<span style="color:var(--text3)">—</span>';
+  return `${parseFloat(v).toFixed(decimals)}${suffix}`;
+}
+
+function fmtColor(v, suffix='', decimals=2, invertido=false) {
+  if (v === null || v === undefined) return '<span style="color:var(--text3)">—</span>';
+  const positivo = invertido ? v < 0 : v > 0;
+  const cls = v === 0 ? 'neu' : positivo ? 'pos' : 'neg';
+  return `<span class="${cls}">${parseFloat(v).toFixed(decimals)}${suffix}</span>`;
+}
+
+function rsiClass(v) {
+  if (v === null) return 'neu';
+  if (v < 35) return 'rsi-buy';
+  if (v > 65) return 'rsi-sell';
+  return 'rsi-neu';
+}
+
+// Columnas (índice 0-based desde el CSV):
+// Col 8=TICKER, 9=RATIO, 10=EMPRESA, 11=SECTOR
+// Col 12=Cash/sh, 13=RSI, 14=ATR, 15=SMA20, 16=SMA50, 17=SMA200
+// Col 19=ROA, 20=ROE, 21=ROIC
+// Col 23=MARGEN BRUTO, 24=MARGEN OPER, 25=MARGEN NETO, 26=MARGEN FCF
+// Col 28=P/E, 29=P/S, 30=P/FCF, 31=P/B, 32=PEG
+// Col 34=DEUDA/EQUITY, 35=LIQUIDEZ, 36=D/Capital, 37=COBERTURA
+// Col 39=CREC INGRESOS, 40=CREC BENF, 41=CREC EPS
+// Col 43=DIVIDEND YIELD, 44=PAYOUT
+// Col 46=BETA, 47=INSIDER OWN
+// Col 49=TIPO FOSO, 50=NIVEL CERTIDUMBRE
+// Col 52=FAIR VALUE, 53=PRECIO, 54=MARGEN SEGURIDAD
+
+function parsearRatios(rows) {
+  const empresas = [];
+  // Datos desde fila 12 (índice 11) hasta fila 43 (índice 42)
+  for (let r = 11; r <= 42; r++) {
+    const row = rows[r];
+    if (!row) continue;
+    const ticker = limpiar(row[8]);
+    if (!ticker || ticker.length < 1 || ticker.length > 6) continue;
+    if (!/^[A-Z\.]+$/.test(ticker)) continue;
+
+    empresas.push({
+      ticker,
+      ratio: limpiar(row[9]),
+      empresa: limpiar(row[10]) || ticker,
+      sector: limpiar(row[11]) || '—',
+      // Indicadores técnicos
+      rsi: num(row[13], 1),
+      atr: num(row[14], 2),
+      sma20: num(row[15], 2),
+      sma50: num(row[16], 2),
+      sma200: num(row[17], 2),
+      // Rentabilidad
+      roa: num(row[19], 1),
+      roe: num(row[20], 1),
+      roic: num(row[21], 1),
+      // Márgenes
+      margenBruto: num(row[23], 1),
+      margenOper: num(row[24], 1),
+      margenNeto: num(row[25], 1),
+      margenFCF: num(row[26], 1),
+      // Múltiplos
+      pe: num(row[28], 1),
+      ps: num(row[29], 1),
+      pfcf: num(row[30], 1),
+      pb: num(row[31], 2),
+      peg: num(row[32], 2),
+      // Deuda
+      deudaEquity: num(row[34], 2),
+      liquidez: num(row[35], 2),
+      dCapital: num(row[36], 2),
+      cobertura: num(row[37], 1),
+      // Crecimiento
+      crecIngresos: num(row[39], 1),
+      crecBenef: num(row[40], 1),
+      crecEPS: num(row[41], 1),
+      // Dividendos
+      divYield: num(row[43], 2),
+      payout: num(row[44], 1),
+      // Otros
+      beta: num(row[46], 2),
+      insiderOwn: num(row[47], 1),
+      tipoFoso: limpiar(row[49]),
+      certidumbre: limpiar(row[50]),
+      // Fair Value
+      fairValue: num(row[52], 2),
+      precio: num(row[53], 2),
+      margenSeg: num(row[54], 1),
+    });
+  }
+  return empresas;
+}
+
+function parsearArbitraje(rows) {
+  const items = [];
+  // Desarbitraje desde fila 53 (índice 52) hasta ~83
+  for (let r = 52; r <= 85; r++) {
+    const row = rows[r];
+    if (!row) continue;
+    const ticker = limpiar(row[0]);
+    if (!ticker || !/^[A-Z\.]+$/.test(ticker)) continue;
+
+    const varPct = (() => {
+      const raw = (row[2] || '').replace(/"/g,'').replace(/[▼▲%\s]/g,'').replace(',','.').trim();
+      const n = parseFloat(raw);
+      return isNaN(n) ? null : n;
+    })();
+
+    items.push({
+      ticker,
+      ratio: limpiar(row[1]),
+      variacion: varPct,
+      cedearARS: limpiar(row[3]),
+      cedearUSD: limpiar(row[4]),
+      valorReal: limpiar(row[5]),
+    });
+  }
+  return items;
+}
+
+function renderTabla(empresas) {
+  // Stats
+  document.getElementById('statEmpresas').textContent = empresas.length;
+  document.getElementById('statBuy').textContent = empresas.filter(e => e.rsi !== null && e.rsi < 35).length;
+  document.getElementById('statSell').textContent = empresas.filter(e => e.rsi !== null && e.rsi > 65).length;
+  document.getElementById('statDiv').textContent = empresas.filter(e => e.divYield !== null && e.divYield > 0).length;
+  document.getElementById('statSub').textContent = empresas.filter(e => e.margenSeg !== null && e.margenSeg > 0).length;
+
+  const filas = empresas.map((e, idx) => {
+    const rc = rsiClass(e.rsi);
+    const msColor = e.margenSeg === null ? 'neu' : e.margenSeg > 0 ? 'pos' : 'neg';
+    return `
+      <tr onclick="toggleDetalle(${idx})" style="cursor:pointer;">
+        <td><span class="ticker-badge">${e.ticker}</span></td>
+        <td><span style="font-size:11px;color:var(--text2)">${e.empresa}</span></td>
+        <td><span class="sector-badge">${e.sector}</span></td>
+        <td><span class="${rc}">${e.rsi !== null ? e.rsi : '—'}</span></td>
+        <td>${fmt(e.pe, 'x', 1)}</td>
+        <td>${fmtColor(e.roe, '%', 1)}</td>
+        <td>${fmtColor(e.margenNeto, '%', 1)}</td>
+        <td>${fmtColor(e.crecIngresos, '%', 1)}</td>
+        <td>${e.divYield !== null && e.divYield > 0 ? `<span class="pos">${e.divYield.toFixed(2)}%</span>` : '<span style="color:var(--text3)">—</span>'}</td>
+        <td><span class="${msColor}">${e.margenSeg !== null ? e.margenSeg.toFixed(1)+'%' : '—'}</span></td>
+        <td style="color:var(--text3);font-size:11px;">▼ detalle</td>
+      </tr>
+      <tr class="expand-row" id="expand-${idx}">
+        <td class="expand-cell" colspan="11">
+          <div class="detail-grid">
+            <div class="detail-group">
+              <div class="detail-group-title">Indicadores Técnicos</div>
+              <div class="detail-row"><span class="detail-label">RSI</span><span class="detail-value ${rsiClass(e.rsi)}">${e.rsi ?? '—'}</span></div>
+              <div class="detail-row"><span class="detail-label">ATR</span><span class="detail-value">${fmt(e.atr,'%')}</span></div>
+              <div class="detail-row"><span class="detail-label">SMA 20</span><span class="detail-value">${fmt(e.sma20,'%')}</span></div>
+              <div class="detail-row"><span class="detail-label">SMA 50</span><span class="detail-value">${fmt(e.sma50,'%')}</span></div>
+              <div class="detail-row"><span class="detail-label">SMA 200</span><span class="detail-value">${fmt(e.sma200,'%')}</span></div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-group-title">Rentabilidad</div>
+              <div class="detail-row"><span class="detail-label">ROA</span><span class="detail-value">${fmtColor(e.roa,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">ROE</span><span class="detail-value">${fmtColor(e.roe,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">ROIC</span><span class="detail-value">${fmtColor(e.roic,'%',1)}</span></div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-group-title">Márgenes</div>
+              <div class="detail-row"><span class="detail-label">Bruto</span><span class="detail-value">${fmtColor(e.margenBruto,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">Operativo</span><span class="detail-value">${fmtColor(e.margenOper,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">Neto</span><span class="detail-value">${fmtColor(e.margenNeto,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">FCF</span><span class="detail-value">${fmtColor(e.margenFCF,'%',1)}</span></div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-group-title">Múltiplos</div>
+              <div class="detail-row"><span class="detail-label">P/E</span><span class="detail-value">${fmt(e.pe,'x',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">P/S</span><span class="detail-value">${fmt(e.ps,'x',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">P/FCF</span><span class="detail-value">${fmt(e.pfcf,'x',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">P/B</span><span class="detail-value">${fmt(e.pb,'x',2)}</span></div>
+              <div class="detail-row"><span class="detail-label">PEG</span><span class="detail-value">${fmt(e.peg,'',2)}</span></div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-group-title">Deuda & Liquidez</div>
+              <div class="detail-row"><span class="detail-label">Deuda/Equity</span><span class="detail-value">${fmt(e.deudaEquity,'',2)}</span></div>
+              <div class="detail-row"><span class="detail-label">Liquidez</span><span class="detail-value">${fmt(e.liquidez,'',2)}</span></div>
+              <div class="detail-row"><span class="detail-label">D/Capital</span><span class="detail-value">${fmt(e.dCapital,'',2)}</span></div>
+              <div class="detail-row"><span class="detail-label">Cobertura</span><span class="detail-value">${fmt(e.cobertura,'x',1)}</span></div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-group-title">Crecimiento</div>
+              <div class="detail-row"><span class="detail-label">Ingresos</span><span class="detail-value">${fmtColor(e.crecIngresos,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">Beneficio</span><span class="detail-value">${fmtColor(e.crecBenef,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">EPS</span><span class="detail-value">${fmtColor(e.crecEPS,'%',1)}</span></div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-group-title">Dividendos</div>
+              <div class="detail-row"><span class="detail-label">Yield</span><span class="detail-value ${e.divYield > 0 ? 'pos' : 'neu'}">${fmt(e.divYield,'%',2)}</span></div>
+              <div class="detail-row"><span class="detail-label">Payout</span><span class="detail-value">${fmt(e.payout,'%',1)}</span></div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-group-title">Fair Value</div>
+              <div class="detail-row"><span class="detail-label">Precio actual</span><span class="detail-value">$${fmt(e.precio,'',2)}</span></div>
+              <div class="detail-row"><span class="detail-label">Fair Value</span><span class="detail-value">$${fmt(e.fairValue,'',2)}</span></div>
+              <div class="detail-row"><span class="detail-label">Margen seguridad</span><span class="detail-value ${e.margenSeg > 0 ? 'pos' : 'neg'}">${fmt(e.margenSeg,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">MOAT</span><span class="detail-value" style="color:var(--purple)">${e.tipoFoso ?? '—'}</span></div>
+              <div class="detail-row"><span class="detail-label">Certidumbre</span><span class="detail-value">${e.certidumbre ?? '—'}</span></div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-group-title">Otros</div>
+              <div class="detail-row"><span class="detail-label">Beta</span><span class="detail-value">${fmt(e.beta,'',2)}</span></div>
+              <div class="detail-row"><span class="detail-label">Insider Own.</span><span class="detail-value">${fmt(e.insiderOwn,'%',1)}</span></div>
+              <div class="detail-row"><span class="detail-label">Ratio CEDEAR</span><span class="detail-value">${e.ratio ?? '—'}</span></div>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th><th>Empresa</th><th>Sector</th>
+            <th>RSI</th><th>P/E</th><th>ROE</th>
+            <th>Mg Neto</th><th>Crec Ing</th>
+            <th>Dividendo</th><th>Mg Seguridad</th><th></th>
+          </tr>
+        </thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>`;
+}
+
+function toggleDetalle(idx) {
+  const row = document.getElementById(`expand-${idx}`);
+  if (!row) return;
+  const isOpen = row.classList.contains('open');
+  // Cerrar todos
+  document.querySelectorAll('.expand-row').forEach(r => r.classList.remove('open'));
+  if (!isOpen) row.classList.add('open');
+}
+
+function renderArbitraje(items) {
+  if (!items.length) {
+    document.getElementById('arbContent').innerHTML = '<div class="error-state">Sin datos de desarbitraje</div>';
+    return;
+  }
+  const filas = items.map(item => {
+    const varColor = item.variacion === null ? 'neu' : item.variacion > 0 ? 'pos' : 'neg';
+    const varStr = item.variacion !== null
+      ? `<span class="${varColor}">${item.variacion > 0 ? '+' : ''}${(item.variacion*100).toFixed(2)}%</span>`
+      : '<span style="color:var(--text3)">—</span>';
+    return `
+      <tr>
+        <td><span style="font-family:var(--mono);font-weight:500;color:var(--gold)">${item.ticker}</span></td>
+        <td>${item.ratio ?? '—'}</td>
+        <td>${varStr}</td>
+        <td>${item.cedearARS ?? '—'}</td>
+        <td>${item.cedearUSD ?? '—'}</td>
+        <td>${item.valorReal ?? '—'}</td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('arbContent').innerHTML = `
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;">Comparación entre cotización CEDEAR en IOL y valor real de la acción en USD</p>
+    <div class="arb-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">Ticker</th>
+            <th>Ratio</th>
+            <th>Var. Diaria</th>
+            <th>CEDEAR ARS (IOL)</th>
+            <th>CEDEAR USD</th>
+            <th>Valor Real USD</th>
+          </tr>
+        </thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>`;
+}
+
+async function cargarDatos() {
+  const btn = document.querySelector('.btn-refresh');
+  btn.textContent = '↻ Cargando...';
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
+
+  document.getElementById('mainContent').innerHTML = `<div class="loading-state"><div class="spinner"></div><span>Obteniendo datos...</span></div>`;
+  document.getElementById('arbContent').innerHTML = `<div class="loading-state"><div class="spinner"></div><span>Obteniendo datos...</span></div>`;
+
+  try {
+    const csv = await fetchCSV(GID_RATIOS);
+    const rows = parseCSV(csv);
+
+    allData = parsearRatios(rows);
+    arbData = parsearArbitraje(rows);
+
+    if (allData.length === 0) throw new Error('No se encontraron datos de empresas');
+
+    renderTabla(allData);
+    renderArbitraje(arbData);
+
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent = `Actualizado ${now.toLocaleTimeString('es-AR')}`;
+
+  } catch(e) {
+    const msg = `<div class="error-state">❌ ${e.message}<br><br><small>Verificá que el Sheet esté publicado: Archivo → Publicar en la web → CSV</small></div>`;
+    document.getElementById('mainContent').innerHTML = msg;
+    document.getElementById('arbContent').innerHTML = msg;
+  }
+
+  btn.textContent = '↻ Actualizar';
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'auto';
+}
+
+function switchTab(tab, el) {
+  tabActual = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tabRatios').style.display = tab === 'ratios' ? 'block' : 'none';
+  document.getElementById('tabArb').style.display = tab === 'arb' ? 'block' : 'none';
+}
+
+cargarDatos();
+</script>
+</body>
+</html>
