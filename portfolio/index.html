@@ -1,1 +1,114 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio · QuantAlpha</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#16161f;
+  --border:rgba(255,255,255,0.07);
+  --text:#f0efe8;--text2:#8a8a9a;--text3:#555568;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --gold:#c9a84c;--teal:#2dd4bf;--blue:#60a5fa;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-weight:300;min-height:100vh;display:flex;flex-direction:column;}
+
+.header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.header-left{display:flex;align-items:center;gap:16px;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--text2);text-decoration:none;font-size:13px;font-family:var(--mono);letter-spacing:0.05em;padding:6px 12px;border:1px solid var(--border);border-radius:8px;transition:all 0.2s;}
+.back-btn:hover{border-color:var(--gold);color:var(--gold);}
+.title{font-size:1.1rem;font-weight:500;}
+.title span{color:var(--gold);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.badge{display:flex;align-items:center;gap:6px;background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.2);border-radius:100px;padding:5px 12px;font-family:var(--mono);font-size:10px;color:var(--teal);letter-spacing:0.05em;}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.btn-sheet{display:flex;align-items:center;gap:6px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);border-radius:8px;padding:7px 14px;color:var(--blue);font-size:12px;font-family:var(--mono);cursor:pointer;text-decoration:none;transition:all 0.2s;}
+.btn-sheet:hover{background:rgba(96,165,250,0.2);}
+
+.tabs{display:flex;padding:0 2rem;background:var(--bg2);border-bottom:1px solid var(--border);}
+.tab{padding:12px 24px;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:500;}
+
+.info-bar{display:flex;align-items:center;gap:12px;padding:10px 2rem;background:rgba(201,168,76,0.04);border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);}
+.info-bar span{color:var(--gold);}
+
+.iframe-container{flex:1;position:relative;min-height:calc(100vh - 140px);}
+iframe{width:100%;height:100%;min-height:calc(100vh - 140px);border:none;display:block;}
+
+.loading-overlay{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--text2);z-index:10;}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  .header{padding:0.75rem 1rem;}
+  .tabs{padding:0 1rem;}
+  .info-bar{padding:8px 1rem;}
+  .header-right .btn-sheet span{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <a href="/" class="back-btn">← Inicio</a>
+    <div class="title">Portfolio · <span>Espejo Google Sheets</span></div>
+  </div>
+  <div class="header-right">
+    <div class="badge"><span class="dot"></span>SINCRONIZADO</div>
+    <a href="https://docs.google.com/spreadsheets/d/1AeAOpJhJgjNhbyoc8AdhCkzuXfcRBgDnmsv3jiqPpnI/edit" target="_blank" class="btn-sheet">
+      ✏️ <span>Editar en Sheets</span>
+    </a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('largo', this)">📈 Largo Plazo</div>
+  <div class="tab" onclick="switchTab('dayswing', this)">⚡ Day/Swing · Arbitraje CCL</div>
+  <div class="tab" onclick="switchTab('swing', this)">🔄 Swing Trading</div>
+</div>
+
+<div class="info-bar">
+  💡 Vista de solo lectura. Para editar hacé clic en <span>✏️ Editar en Sheets</span> — los cambios se reflejan automáticamente acá.
+</div>
+
+<div class="iframe-container">
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <span>Cargando datos de Google Sheets...</span>
+  </div>
+  <iframe id="sheetFrame" 
+    src="https://docs.google.com/spreadsheets/d/1AeAOpJhJgjNhbyoc8AdhCkzuXfcRBgDnmsv3jiqPpnI/preview?gid=1944477525&rm=minimal"
+    onload="document.getElementById('loadingOverlay').style.display='none'"
+    allowfullscreen>
+  </iframe>
+</div>
+
+<script>
+const TABS = {
+  largo:    { gid: '1944477525', label: 'Largo Plazo' },
+  dayswing: { gid: '983092884',  label: 'Day/Swing · Arbitraje CCL' },
+  swing:    { gid: '828078823',  label: 'Swing Trading' }
+};
+
+const SHEET_ID = '1AeAOpJhJgjNhbyoc8AdhCkzuXfcRBgDnmsv3jiqPpnI';
+
+function switchTab(key, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.style.display = 'flex';
+
+  const frame = document.getElementById('sheetFrame');
+  frame.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/preview?gid=${TABS[key].gid}&rm=minimal`;
+}
+</script>
+</body>
+</html>
