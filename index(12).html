@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MARCE · Plataforma de Inversiones</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f; --bg2: #111118; --bg3: #16161f;
+  --border: rgba(255,255,255,0.07); --border-hover: rgba(255,255,255,0.15);
+  --text: #f0efe8; --text2: #8a8a9a; --text3: #555568;
+  --gold: #c9a84c; --teal: #2dd4bf; --purple: #a78bfa;
+  --coral: #fb7185; --green: #4ade80;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-weight: 300; min-height: 100vh; overflow-x: hidden; }
+.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+.bg-glow { position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 800px; height: 500px; background: radial-gradient(ellipse, rgba(201,168,76,0.06) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+
+/* LOGIN */
+#loginScreen { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.login-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 24px; padding: 3rem 2.5rem; width: 100%; max-width: 420px; text-align: center; position: relative; z-index: 1; animation: fadeUp 0.5s ease both; }
+.login-logo { font-family: var(--font-display); font-size: 2.6rem; font-weight: 400; letter-spacing: -0.02em; margin-bottom: 4px; }
+.login-logo em { color: var(--gold); font-style: italic; }
+.login-sub { font-size: 13px; color: var(--text2); margin-bottom: 2rem; font-family: var(--font-mono); letter-spacing: 0.05em; }
+.login-divider { width: 40px; height: 1px; background: var(--gold); margin: 0 auto 2rem; opacity: 0.4; }
+.login-desc { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 2rem; }
+.btn-google { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 14px 20px; background: white; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 500; color: #1f1f1f; font-family: var(--font-body); transition: transform 0.15s, box-shadow 0.15s; }
+.btn-google:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.btn-google:active { transform: scale(0.98); }
+.login-footer { margin-top: 1.5rem; font-size: 11px; color: var(--text3); font-family: var(--font-mono); letter-spacing: 0.05em; }
+
+/* MAIN */
+#mainApp { display: none; position: relative; z-index: 1; }
+.wrapper { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+header { padding: 2.5rem 0 2rem; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); margin-bottom: 3rem; animation: fadeUp 0.5s ease both; }
+.logo-area { display: flex; flex-direction: column; gap: 4px; }
+.logo-sup { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; }
+.logo-title { font-family: var(--font-display); font-size: 2.8rem; font-weight: 400; line-height: 1; letter-spacing: -0.02em; }
+.logo-title em { color: var(--gold); font-style: italic; }
+.logo-sub { font-size: 13px; color: var(--text2); font-weight: 300; margin-top: 4px; }
+.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.user-badge { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 100px; padding: 8px 16px; }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--teal)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #0a0a0f; }
+.user-name { font-size: 13px; color: var(--text); font-weight: 400; }
+.btn-logout { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 5px 12px; color: var(--text3); font-size: 11px; font-family: var(--font-mono); letter-spacing: 0.05em; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+.btn-logout:hover { border-color: var(--coral); color: var(--coral); }
+.status-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(45,212,191,0.08); border: 1px solid rgba(45,212,191,0.2); border-radius: 100px; padding: 5px 14px; font-family: var(--font-mono); font-size: 10px; color: var(--teal); letter-spacing: 0.05em; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.header-date { font-family: var(--font-mono); font-size: 10px; color: var(--text3); letter-spacing: 0.05em; }
+
+.section-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.25em; color: var(--text3); text-transform: uppercase; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.tools-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 2.5rem; }
+.tool-card { position: relative; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; cursor: pointer; text-decoration: none; color: inherit; display: block; transition: border-color 0.3s, transform 0.2s, background 0.3s; overflow: hidden; }
+.tool-card::before { content: ''; position: absolute; inset: 0; border-radius: 16px; opacity: 0; transition: opacity 0.3s; }
+.tool-card:hover { transform: translateY(-3px); border-color: var(--border-hover); background: var(--bg3); }
+.tool-card:hover::before { opacity: 1; }
+.card-gold::before { background: radial-gradient(circle at top left, rgba(201,168,76,0.08), transparent 60%); }
+.card-gold:hover { border-color: rgba(201,168,76,0.3); }
+.card-purple::before { background: radial-gradient(circle at top left, rgba(167,139,250,0.08), transparent 60%); }
+.card-purple:hover { border-color: rgba(167,139,250,0.3); }
+.card-teal::before { background: radial-gradient(circle at top left, rgba(45,212,191,0.08), transparent 60%); }
+.card-teal:hover { border-color: rgba(45,212,191,0.3); }
+.card-coral::before { background: radial-gradient(circle at top left, rgba(251,113,133,0.08), transparent 60%); }
+.card-coral:hover { border-color: rgba(251,113,133,0.3); }
+.card-number { position: absolute; top: 1.5rem; right: 1.5rem; font-family: var(--font-mono); font-size: 11px; color: var(--text3); }
+.card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; }
+.card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.icon-gold { background: rgba(201,168,76,0.12); }
+.icon-purple { background: rgba(167,139,250,0.12); }
+.icon-teal { background: rgba(45,212,191,0.12); }
+.icon-coral { background: rgba(251,113,133,0.12); }
+.card-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em; padding: 4px 10px; border-radius: 100px; text-transform: uppercase; border: 1px solid; }
+.tag-gold { color: var(--gold); border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.06); }
+.tag-purple { color: var(--purple); border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); }
+.tag-teal { color: var(--teal); border-color: rgba(45,212,191,0.3); background: rgba(45,212,191,0.06); }
+.tag-coral { color: var(--coral); border-color: rgba(251,113,133,0.3); background: rgba(251,113,133,0.06); }
+.card-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 400; line-height: 1.1; margin-bottom: 0.3rem; letter-spacing: -0.01em; }
+.card-version { font-family: var(--font-mono); font-size: 10px; color: var(--text3); margin-bottom: 1rem; letter-spacing: 0.08em; }
+.card-desc { font-size: 13.5px; color: var(--text2); line-height: 1.65; margin-bottom: 1.5rem; font-weight: 300; }
+.card-features { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; }
+.feature-pill { font-size: 11px; padding: 3px 10px; border-radius: 100px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text2); font-weight: 300; }
+.card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+.card-status { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; }
+.st-dot { width: 5px; height: 5px; border-radius: 50%; }
+.st-live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.st-dev { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+.st-live-text { color: var(--green); }
+.st-dev-text { color: var(--gold); }
+.card-arrow { font-size: 18px; color: var(--text3); transition: transform 0.2s, color 0.2s; }
+.tool-card:hover .card-arrow { transform: translate(3px, -3px); color: var(--text2); }
+.card-coming { border-style: dashed; cursor: default; opacity: 0.6; }
+.card-coming:hover { transform: none; background: var(--bg2); }
+
+.bottom-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; margin-bottom: 3rem; }
+.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; }
+.panel-title { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em; color: var(--text3); text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+.act-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.act-item:last-child { border-bottom: none; }
+.act-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+.act-mod { color: var(--text); flex: 1; font-weight: 400; }
+.act-fecha { color: var(--text3); font-family: var(--font-mono); font-size: 11px; }
+.act-empty { color: var(--text3); font-size: 13px; padding: 1rem 0; text-align: center; }
+.info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.info-row:last-child { border-bottom: none; }
+.info-label { color: var(--text2); }
+.info-value { color: var(--text); font-family: var(--font-mono); font-size: 12px; }
+.info-value.ok { color: var(--green); }
+.info-value.pending { color: var(--gold); }
+
+footer { border-top: 1px solid var(--border); padding: 2rem 0; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text3); font-family: var(--font-mono); letter-spacing: 0.05em; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.tools-grid .tool-card:nth-child(1) { animation: fadeUp 0.5s 0.1s ease both; }
+.tools-grid .tool-card:nth-child(2) { animation: fadeUp 0.5s 0.2s ease both; }
+.tools-grid .tool-card:nth-child(3) { animation: fadeUp 0.5s 0.3s ease both; }
+.tools-grid .tool-card:nth-child(4) { animation: fadeUp 0.5s 0.4s ease both; }
+.bottom-grid { animation: fadeUp 0.5s 0.5s ease both; }
+
+@media (max-width: 768px) {
+  .tools-grid { grid-template-columns: 1fr; }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .logo-title { font-size: 2.2rem; }
+  header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .header-right { align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- ══ PANTALLA LOGIN ══ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">MARCE <em>Platform</em></div>
+    <div class="login-sub">Plataforma de inversiones · Buenos Aires</div>
+    <div class="login-divider"></div>
+    <p class="login-desc">Accedé con tu cuenta de Google para ingresar a tus herramientas de análisis e inversión.</p>
+    <button class="btn-google" id="btnLogin">
+      <svg width="20" height="20" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Ingresar con Google
+    </button>
+    <div class="login-footer">Acceso seguro · Los datos quedan en tu cuenta</div>
+  </div>
+</div>
+
+<!-- ══ PLATAFORMA PRINCIPAL ══ -->
+<div id="mainApp">
+  <div class="wrapper">
+
+    <header>
+      <div class="logo-area">
+        <span class="logo-sup">Plataforma de inversiones</span>
+        <h1 class="logo-title">MARCE <em>Platform</em></h1>
+        <p class="logo-sub">Herramientas integradas · Datos en la nube · Buenos Aires</p>
+      </div>
+      <div class="header-right">
+        <div class="user-badge">
+          <div class="user-avatar" id="userInitials">?</div>
+          <span class="user-name" id="userName">...</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div class="status-badge"><span class="status-dot"></span>SISTEMA ACTIVO</div>
+          <button class="btn-logout" id="btnLogout">Salir</button>
+        </div>
+        <div class="header-date" id="fechaHoy"></div>
+      </div>
+    </header>
+
+    <div class="section-label">Herramientas</div>
+
+    <div class="tools-grid">
+
+      <a class="tool-card card-gold" href="capitaltrack/index.html" id="linkCapitalTrack">
+        <span class="card-number">01</span>
+        <div class="card-header">
+          <div class="card-icon icon-gold">📊</div>
+          <span class="card-tag tag-gold">Portfolio</span>
+        </div>
+        <div class="card-name">CapitalTrack</div>
+        <div class="card-version">CEDEAR · ACCIONES — MANAGER PRO</div>
+        <p class="card-desc">Seguimiento de portfolio en CEDEARs y acciones. Cálculo de PPC, retorno en USD con metodología propia y tipo de cambio CCL en tiempo real.</p>
+        <div class="card-features">
+          <span class="feature-pill">CEDEARs</span>
+          <span class="feature-pill">PPC automático</span>
+          <span class="feature-pill">Retorno USD</span>
+          <span class="feature-pill">CCL histórico</span>
+          <span class="feature-pill">Metodología MIP</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><span class="st-dot st-live"></span><span class="st-live-text">EN VIVO</span></div>
+          <span class="card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a class="tool-card card-purple" href="marce-asistente/index.html" id="linkMarce">
+        <span class="card-number">02</span>
+        <div class="card-header">
+          <div class="card-icon icon-purple">🤖</div>
+          <span class="card-tag tag-purple">IA · Alertas</span>
+        </div>
+        <div class="card-name">MARCE <em>Asistente</em></div>
+        <div class="card-version">Monitor · Asistente IA de Mercados</div>
+        <p class="card-desc">Monitor de más de 725 instrumentos con indicadores técnicos propios. Asistente IA conversacional y sistema de alertas por email en tiempo real.</p>
+        <div class="card-features">
+          <span class="feature-pill">725+ instrumentos</span>
+          <span class="feature-pill">RSI · MACD</span>
+          <span class="feature-pill">Cruces de medias</span>
+          <span class="feature-pill">Asistente IA</span>
+          <span class="feature-pill">Alertas email</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><span class="st-dot st-live"></span><span class="st-live-text">EN VIVO</span></div>
+          <span class="card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a class="tool-card card-teal" href="quantplatform/index.html" id="linkQuant">
+        <span class="card-number">03</span>
+        <div class="card-header">
+          <div class="card-icon icon-teal">⚡</div>
+          <span class="card-tag tag-teal">Análisis cuant.</span>
+        </div>
+        <div class="card-name">QuantPlatform <em>Manager</em></div>
+        <div class="card-version">Análisis cuantitativo</div>
+        <p class="card-desc">Motor de análisis cuantitativo con scoring multivariable propio, evaluación fundamental de empresas y estrategias de trading sistemático.</p>
+        <div class="card-features">
+          <span class="feature-pill">Scoring multivariable</span>
+          <span class="feature-pill">Análisis fundamental</span>
+          <span class="feature-pill">Trading sistemático</span>
+          <span class="feature-pill">Ratios propios</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><span class="st-dot st-live"></span><span class="st-live-text">EN VIVO</span></div>
+          <span class="card-arrow">↗</span>
+        </div>
+      </a>
+
+      <a class="tool-card card-coral" href="rsi/index.html" id="linkRSI">
+        <span class="card-number">04</span>
+        <div class="card-header">
+          <div class="card-icon icon-coral">📡</div>
+          <span class="card-tag tag-coral">RSI · Mercados</span>
+        </div>
+        <div class="card-name">RSI <em>Monitor</em></div>
+        <div class="card-version">USA & Mundo — 19 sectores</div>
+        <p class="card-desc">Monitor de RSI en tiempo real para USA y mercados globales. 10 sectores USA y 9 regiones del mundo con variación diaria.</p>
+        <div class="card-features">
+          <span class="feature-pill">10 sectores USA</span>
+          <span class="feature-pill">9 regiones mundo</span>
+          <span class="feature-pill">Sobrevendidos</span>
+          <span class="feature-pill">Variación %</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-status"><span class="st-dot st-live"></span><span class="st-live-text">EN VIVO</span></div>
+          <span class="card-arrow">↗</span>
+        </div>
+      </a>
+
+    </div>
+
+    <div class="bottom-grid">
+      <div class="panel">
+        <div class="panel-title">⏱ Actividad reciente</div>
+        <div id="actividadLista"><div class="act-empty">Cargando...</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">⚙ Estado del sistema</div>
+        <div class="info-row"><span class="info-label">Hosting</span><span class="info-value ok">Vercel ✓</span></div>
+        <div class="info-row"><span class="info-label">Base de datos</span><span class="info-value ok">Firebase ✓</span></div>
+        <div class="info-row"><span class="info-label">Herramientas activas</span><span class="info-value">4 / 4</span></div>
+        <div class="info-row"><span class="info-label">Sesión</span><span class="info-value ok" id="sessionStatus">Activa ✓</span></div>
+        <div class="info-row"><span class="info-label">Versión plataforma</span><span class="info-value">v1.0</span></div>
+      </div>
+    </div>
+
+    <footer>
+      <span>MARCE PLATFORM · Buenos Aires · ARG</span>
+      <span id="footerYear"></span>
+    </footer>
+
+  </div>
+</div>
+
+<!-- ══ FIREBASE — mismo proyecto que CapitalTrack ══ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, orderBy, query, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ✅ Mismo Firebase que CapitalTrack — no hace falta crear otro
+  const firebaseConfig = {
+    apiKey: "AIzaSyCClH51RnDsaYxBxvcsut1ISnCvMTrinbQ",
+    authDomain: "capitaltrack-a3bc3.firebaseapp.com",
+    projectId: "capitaltrack-a3bc3",
+    storageBucket: "capitaltrack-a3bc3.firebasestorage.app",
+    messagingSenderId: "447015509800",
+    appId: "1:447015509800:web:14670c8b3163c20f817a1d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // Login
+  document.getElementById('btnLogin').addEventListener('click', async () => {
+    try { await signInWithPopup(auth, provider); }
+    catch(e) { alert('Error al iniciar sesión: ' + e.message); }
+  });
+
+  // Logout
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    if (confirm('¿Cerrar sesión?')) await signOut(auth);
+  });
+
+  // Registrar apertura de herramienta en Firestore
+  async function registrarApertura(modulo, uid) {
+    try {
+      await addDoc(collection(db, 'users', uid, 'actividad'), {
+        modulo, accion: 'apertura',
+        timestamp: serverTimestamp(),
+        fecha: new Date().toLocaleDateString('es-AR')
+      });
+    } catch(e) { console.log('actividad:', e.message); }
+  }
+
+  // Cargar actividad reciente desde Firestore
+  async function cargarActividad(uid) {
+    const lista = document.getElementById('actividadLista');
+    try {
+      const q = query(collection(db, 'users', uid, 'actividad'), orderBy('timestamp', 'desc'), limit(8));
+      const snap = await getDocs(q);
+      if (snap.empty) { lista.innerHTML = '<div class="act-empty">Sin actividad aún</div>'; return; }
+      lista.innerHTML = '';
+      snap.forEach(doc => {
+        const d = doc.data();
+        const item = document.createElement('div');
+        item.className = 'act-item';
+        item.innerHTML = `<span class="act-dot"></span><span class="act-mod">${d.modulo}</span><span class="act-fecha">${d.fecha || '—'}</span>`;
+        lista.appendChild(item);
+      });
+    } catch(e) { lista.innerHTML = '<div class="act-empty">Error al cargar actividad</div>'; }
+  }
+
+  // Observer principal — controla login/logout
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // Mostrar plataforma
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+
+      // Nombre e iniciales
+      const nombre = user.displayName || user.email || 'Usuario';
+      const iniciales = nombre.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+      document.getElementById('userName').textContent = nombre.split(' ')[0];
+      document.getElementById('userInitials').textContent = iniciales;
+
+      cargarActividad(user.uid);
+      registrarApertura('Panel de inicio', user.uid);
+
+      // Guardar uid en sessionStorage para que las sub-herramientas lo lean si lo necesitan
+      sessionStorage.setItem('marce_uid', user.uid);
+      sessionStorage.setItem('marce_user', nombre);
+
+      // Registrar clicks a cada herramienta
+      document.getElementById('linkCapitalTrack').addEventListener('click', () => registrarApertura('CapitalTrack', user.uid));
+      document.getElementById('linkMarce').addEventListener('click', () => registrarApertura('MARCE Asistente', user.uid));
+      document.getElementById('linkQuant').addEventListener('click', () => registrarApertura('QuantPlatform', user.uid));
+      document.getElementById('linkRSI').addEventListener('click', () => registrarApertura('RSI Monitor', user.uid));
+
+    } else {
+      // Mostrar login
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+      sessionStorage.removeItem('marce_uid');
+      sessionStorage.removeItem('marce_user');
+    }
+  });
+</script>
+
+<script>
+  const hoy = new Date();
+  document.getElementById('fechaHoy').textContent = hoy.toLocaleDateString('es-AR', { weekday:'long', year:'numeric', month:'long', day:'numeric' }).toUpperCase();
+  document.getElementById('footerYear').textContent = `© ${hoy.getFullYear()} · Datos seguros en Firebase`;
+</script>
+
+</body>
+</html>
